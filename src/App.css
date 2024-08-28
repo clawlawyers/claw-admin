@@ -6,7 +6,8 @@
     radial-gradient(circle at 100% 30%, #8a53e4d0, transparent 30%),
     radial-gradient(circle at 0% 50%, #351f58d0, transparent 30%),
     radial-gradient(circle at 0% 85%, #018585, transparent 20%); */
-  background-color: #0e1118;
+    background: linear-gradient(180deg, #0E1118 0%, #1D2330 100%);
+
 }
 
 .container {
