@@ -1,25 +1,51 @@
 import logo from './logo.svg';
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+
 import './App.css';
+import AdminLayout from './admin/AdminLayout';
+import CourtRoomUsers from './admin/Admin';
+import AllowedBooking from './admin/AllowedBooking';
+import AllowedLogin from './admin/AllowedLogin';
+import CustomCourtrrom from './admin/CustomCourtrrom';
+import { Provider } from 'react-redux';
+import store from './store';
 
 function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <AdminLayout />,
+      children: [
+        {
+          path: "/admin/court-room",
+          element: <CourtRoomUsers />,
+        },
+        {
+          path: "/admin/allowed-booking",
+          element: <AllowedBooking />,
+        },
+        {
+          path: "/admin/allowed-login",
+          element: <AllowedLogin />,
+        },
+        {
+          path: "/admin/custom-courtroom",
+          element:<CustomCourtrrom />,
+        },
+      ],
+    },
+  ])
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <RouterProvider router={router} />
     </div>
   );
 }
 
-export default App;
+const WrappedApp = () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+)
+
+export default WrappedApp;
