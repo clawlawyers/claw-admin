@@ -46,3 +46,29 @@ export const navbarMenus = [
 ];
 
 export default navbarMenus;
+
+export const adminUserData = [
+  
+    {
+      username: "user_example_01",
+      plan: "free"
+    },
+    {
+      username: "user_example_02",
+      plan: "pro_u_4"
+    },
+    {
+      username: "user_example_03",
+      plan: "free"
+    },
+    {
+      username: "user_example_04",
+      plan: "pro_u_4"
+    },
+    {
+      username: "user_example_05",
+      plan: "free"
+    }
+  
+  
+]

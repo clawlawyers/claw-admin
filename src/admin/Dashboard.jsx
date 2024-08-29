@@ -1,33 +1,52 @@
 import React from "react";
+import { adminUserData } from "../utils/utils";
+import { People, PersonAdd, ShoppingCart } from "@mui/icons-material";
+import PieChart from "./components/PieChat";
 
 const Dashboard = () => {
   return (
-    <main className="flex flex-col h-screen w-full justify-between items-center p-10">
+    <main className="flex flex-col space-y-5 h-screen w-full justify-between items-center p-10">
       {/* //card section */}
       <section className="flex flex-row w-full space-x-5 justify-center items-center">
-        <div className="bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white w-52 h-fit">
-          <p>Total User</p>
-          <p>128</p>
+        <div className="flex-1 bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white  h-fit">
+          <p><People /> Total User</p>
+          <p className="text-2xl font-semibold">128</p>
         </div>
-        <div className="bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white w-52 h-fit">
-          <p>Subscribed User</p>
-          <p>128</p>
+        <div className="flex-1 bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white  h-fit">
+          <p><PersonAdd /> Subscribed User</p>
+          <p className="text-2xl font-semibold">128</p>
+
         </div>
-        <div className="bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white w-52 h-fit">
-          <p>Total Referral Codes</p>
-          <p>128</p>
+        <div className="flex-1 bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white  h-fit">
+          <p><ShoppingCart /> Total Referral Codes</p>
+          <p className="text-2xl font-semibold">128</p>
+
         </div>
-        <div className="bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white w-52 h-fit">
-          <p>Total Visitors</p>
-          <p>128</p>
+        <div className="flex-1 bg-card-gradient flex flex-col justify-center items-center p-5 rounded-md border border-white  h-fit">
+          <p><People />Total Visitors</p>
+          <p className="text-2xl font-semibold">128</p>
+
         </div>
       </section>
 
       {/* //graph sections */}
-      <section className="flex flex-row w-full justify-center items-center ">
+      <section className="flex flex-row w-full space-x-10 justify-between items-center ">
         {/* Top Users */}
-        <div className="bg-white rounded-md p-5 flex flex-col">
-            <p>Top Users</p>
+        <div className="bg-white flex-1 rounded-md p-5 flex flex-col text-black h-[65vh]">
+            <h2 className="text-lg text-teal-700 font-semibold">Top Users</h2>
+            {/* //users */}
+            <div>
+                {adminUserData?.map((users)=> (
+                    <div className="flex flex-row justify-between items-center p-2 border-b border-gray-200">
+                        <p>{users.username}</p>
+                        <p>{users.plan}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+        <div className="bg-white flex-1 rounded-md p-5 flex flex-col text-black h-[65vh]">
+        <h2 className="text-lg text-center text-teal-700 font-semibold">User Plan Distribution</h2>
+              <PieChart />
         </div>
       </section>
     </main>

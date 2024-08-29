@@ -14,7 +14,7 @@ const Login = () => {
     if(otpSent){
 
         alert("Otp Verified");
-        navigate("/admin")
+        navigate("/admin/dashboard")
     }
 
   };
