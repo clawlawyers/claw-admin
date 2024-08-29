@@ -1,51 +1,41 @@
-import React from "react";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import React from 'react';
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
-// Register necessary Chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend);
+const data = [
+  { name: 'Category 1', value: 400 },
+  { name: 'Category 2', value: 300 },
+  { name: 'Category 3', value: 300 },
+  { name: 'Category 4', value: 200 },
+  { name: 'Category 5', value: 278 },
+  { name: 'Category 6', value: 189 },
+  { name: 'Category 7', value: 239 },
+  { name: 'Category 8', value: 349 }
+];
 
-const PieChart = () => {
-  // Data for the pie chart
-  const data = {
-    
-    datasets: [
-      {
-        label: "Dataset",
-        data: [12, 19, 3, 5, 2, 3, 8, 7],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
-          "rgba(75, 192, 192, 0.6)",
-          "rgba(153, 102, 255, 0.6)",
-          "rgba(255, 159, 64, 0.6)",
-          "rgba(199, 199, 199, 0.6)",
-          "rgba(123, 239, 178, 0.6)"
-        ],
-        borderWidth: 1,
-        borderColor: "#fff",
-        hoverBorderColor: "#000"
-      }
-    ]
-  };
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28EFF', '#FF6384', '#36A2EB', '#FFCE56'];
 
-  // Options for customizing the pie chart
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "right",
-      }
-    }
-  };
+const MyPieChart = () => (
+  <div className="bg-white flex-1 rounded-md p-5 flex flex-col text-black h-[65vh]">
+    <h2 className="text-lg text-center text-teal-700 font-semibold">User Plan Distribution</h2>
+    <div className="flex justify-center items-center flex-1">
+      <PieChart width={350} height={350}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          outerRadius={120}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        
+      </PieChart>
+    </div>
+  </div>
+);
 
-  return (
-    
-      
-      <Pie data={data} options={options} />
-    
-  );
-};
-
-export default PieChart;
+export default MyPieChart;
