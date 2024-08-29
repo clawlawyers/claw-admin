@@ -11,6 +11,8 @@ import { Provider } from "react-redux";
 import store from "./store";
 import Home from "./admin/Home";
 import Dashboard from "./admin/Dashboard";
+import Users from "./admin/Users";
+import SubscribedUsers from "./admin/SubscribedUsers";
 
 function App() {
   const router = createBrowserRouter([
@@ -25,6 +27,14 @@ function App() {
         {
           path: "/admin/dashboard",
           element: <Dashboard />,
+        },
+        {
+          path: "/admin/users",
+          element: <Users />,
+        },
+        {
+          path: "/admin/sub-users",
+          element: <SubscribedUsers />,
         },
         {
           path: "/admin/court-room",
