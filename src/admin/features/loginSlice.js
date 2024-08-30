@@ -1,39 +1,54 @@
 // src/redux/phoneNumberSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { NODE_API_ENDPOINT } from "../../utils/utils";
 
-// Define the initial state for the phone number slice
-const initialState = {
-  phoneNumber: '', // Store the phone number
-  status: 'idle',  // Status of any operation (e.g., loading, success)
-  error: null,     // Error message if any operation fails
-};
+export const retrieveAuth = createAsyncThunk("auth/retrieveAuth", async () => {
+  const storedAuth = localStorage.getItem("auth-courtroom-admin");
+  if (storedAuth) {
+    const parsedUser = await JSON.parse(storedAuth);
+    if (parsedUser.expiresAt < new Date().valueOf()) return null;
+    const props = await fetch(`${NODE_API_ENDPOINT}/admin/verify`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${parsedUser.jwt}`,
+      },
+    });
+    const parsedProps = await props.json();
+    console.log(parsedProps.data);
+    return {
+      user: parsedProps.data,
+    };
+  } else return null;
+});
 
 // Create the slice
 const phoneNumberSlice = createSlice({
-  name: 'phoneNumber',
-  initialState,
+  name: "adminAuthUser",
+  initialState: {
+    user: "",
+  },
   reducers: {
-    // Action to set the phone number
-    setPhoneNumber(state, action) {
-      state.phoneNumber = action.payload;
+    login(state, action) {
+      const { user } = action.payload;
+      state.user = user;
+      localStorage.setItem("auth-courtroom-admin", JSON.stringify(user));
     },
-    // Action to set loading status
-    setLoading(state, action) {
-      state.status = action.payload;
+    logout(state) {
+      state.user = "";
+      localStorage.removeItem("auth-courtroom-admin");
     },
-    // Action to set error
-    setError(state, action) {
-      state.error = action.payload;
-    },
-    // Action to clear the phone number (e.g., on logout or form reset)
-    clearPhoneNumber(state) {
-      state.phoneNumber = '';
-    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(retrieveAuth.fulfilled, (state, action) => {
+      if (action.payload && action.payload.user) {
+        state.user = action.payload.user;
+      }
+    });
   },
 });
 
 // Export the actions
-export const { setPhoneNumber, setLoading, setError, clearPhoneNumber } = phoneNumberSlice.actions;
+export const { login, logout } = phoneNumberSlice.actions;
 
 // Export the reducer
 export default phoneNumberSlice.reducer;

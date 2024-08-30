@@ -13,8 +13,16 @@ import Home from "./admin/Home";
 import Dashboard from "./admin/Dashboard";
 import Users from "./admin/Users";
 import SubscribedUsers from "./admin/SubscribedUsers";
+import { useEffect } from "react";
+import { retrieveUserslist } from "./admin/features/userSlice";
+import { Toaster } from "react-hot-toast";
+import { retrieveAuth } from "./admin/features/loginSlice";
 
 function App() {
+  useEffect(() => {
+    store.dispatch(retrieveUserslist());
+    store.dispatch(retrieveAuth());
+  }, []);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -58,6 +66,7 @@ function App() {
   return (
     <div className="App">
       <RouterProvider router={router} />
+      <Toaster />
     </div>
   );
 }
