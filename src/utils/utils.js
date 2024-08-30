@@ -5,7 +5,7 @@ export const FLASK_API_ENDPOINT =
 
 export const NODE_API_ENDPOINT =
   process.env.NODE_ENV === "production"
-    ? "https://claw-dev-courtroom-backend.onrender.com/api/v1"
+    ? "https://claw-backend.onrender.com/api/v1"
     : "http://localhost:8000/api/v1";
 
 export const splitContentIntoPages = (text, maxWordsPerPage) => {
@@ -48,27 +48,24 @@ export const navbarMenus = [
 export default navbarMenus;
 
 export const adminUserData = [
-  
-    {
-      username: "user_example_01",
-      plan: "free"
-    },
-    {
-      username: "user_example_02",
-      plan: "pro_u_4"
-    },
-    {
-      username: "user_example_03",
-      plan: "free"
-    },
-    {
-      username: "user_example_04",
-      plan: "pro_u_4"
-    },
-    {
-      username: "user_example_05",
-      plan: "free"
-    }
-  
-  
-]
+  {
+    username: "user_example_01",
+    plan: "free",
+  },
+  {
+    username: "user_example_02",
+    plan: "pro_u_4",
+  },
+  {
+    username: "user_example_03",
+    plan: "free",
+  },
+  {
+    username: "user_example_04",
+    plan: "pro_u_4",
+  },
+  {
+    username: "user_example_05",
+    plan: "free",
+  },
+];
