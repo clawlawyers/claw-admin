@@ -40,7 +40,7 @@ export const navbarMenus = [
   { id: 9, name: "Custom Courtroom", link: "/admin/custom-courtroom" },
   { id: 10, name: "Allowed Booking", link: "/admin/allowed-booking" },
   { id: 11, name: "Allowed Log in", link: "/admin/allowed-login" },
-  { id: 12, name: "Add Ambassador", link: "/add-ambasador" },
+  { id: 12, name: "Add Ambassador", link: "/admin/add-ambasador" },
   { id: 13, name: "Salesman", link: "/salesman" },
   { id: 14, name: "All Admins", link: "/all-admins" },
 ];

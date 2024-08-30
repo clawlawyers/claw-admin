@@ -18,8 +18,17 @@ import Referral from "./admin/Referral";
 import Visitors from "./admin/Vistors";
 import CouponCode from "./admin/CouponCode";
 import UserVisit from "./admin/UserVisit";
+import { useEffect } from "react";
+import { retrieveUserslist } from "./admin/features/userSlice";
+import { Toaster } from "react-hot-toast";
+import { retrieveAuth } from "./admin/features/loginSlice";
+import AddAmbasaddor from "./admin/AddAmbasaddor";
 
 function App() {
+  useEffect(() => {
+    store.dispatch(retrieveUserslist());
+    store.dispatch(retrieveAuth());
+  }, []);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -73,12 +82,17 @@ function App() {
           path: "/admin/user-visit",
           element:<UserVisit />
         },
+        {
+          path: "/admin/add-ambasador",
+          element:<AddAmbasaddor />
+        },
       ],
     },
   ]);
   return (
     <div className="App">
       <RouterProvider router={router} />
+      <Toaster />
     </div>
   );
 }

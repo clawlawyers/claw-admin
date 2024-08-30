@@ -1,10 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import navbarMenus from "../utils/utils";
+import { useSelector } from "react-redux";
 
 const AdminLayout = () => {
+  const user = localStorage.getItem("auth-courtroom-admin");
+
+  console.log(user);
   const location = useLocation();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    
+    }
+  },[]);
   return (
     <main className="h-screen w-full flex flex-col md:flex-row justify-start items-start gap-5 p-5">
       <div className="w-full md:w-[20%] flex flex-col h-full hide-scrollbar  max-h-full overflow-y-auto gap-2">
@@ -15,7 +25,6 @@ const AdminLayout = () => {
             <h1
               key={menu.id}
               onClick={() => navigate(`${menu.link}`)}
-              
               className={`text-left p-2 text-2xl rounded-md cursor-pointer ${
                 isActive ? "bg-teal-500 text-white" : ""
               }`}
