@@ -7,7 +7,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   return (
     <main className="h-screen w-full flex flex-col md:flex-row justify-start items-start gap-5 p-5">
-      <div className="w-full md:w-[20%] flex flex-col h-full max-h-full overflow-y-auto gap-2">
+      <div className="w-full md:w-[20%] flex flex-col h-full hide-scrollbar  max-h-full overflow-y-auto gap-2">
         {navbarMenus.map((menu) => {
           console.log(location.pathname);
           const isActive = location.pathname === menu.link;

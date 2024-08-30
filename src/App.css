@@ -24,3 +24,12 @@
   padding: 5px 20px;
   width: 100%;
 }
+/* Custom CSS to hide scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

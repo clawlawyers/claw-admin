@@ -13,6 +13,11 @@ import Home from "./admin/Home";
 import Dashboard from "./admin/Dashboard";
 import Users from "./admin/Users";
 import SubscribedUsers from "./admin/SubscribedUsers";
+import Referral from "./admin/Referral";
+
+import Visitors from "./admin/Vistors";
+import CouponCode from "./admin/CouponCode";
+import UserVisit from "./admin/UserVisit";
 
 function App() {
   const router = createBrowserRouter([
@@ -51,6 +56,22 @@ function App() {
         {
           path: "/admin/custom-courtroom",
           element: <CustomCourtrrom />,
+        },
+        {
+          path: "/admin/referral",
+          element: <Referral />,
+        },
+        {
+          path: "/admin/visitor",
+          element:<Visitors />,
+        },
+        {
+          path: "/admin/coupon-code",
+          element:<CouponCode />
+        },
+        {
+          path: "/admin/user-visit",
+          element:<UserVisit />
         },
       ],
     },
