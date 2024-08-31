@@ -23,6 +23,9 @@ import { retrieveUserslist } from "./admin/features/userSlice";
 import { Toaster } from "react-hot-toast";
 import { retrieveAuth } from "./admin/features/loginSlice";
 import AddAmbasaddor from "./admin/AddAmbasaddor";
+import Salesman from "./admin/Salesman";
+import SalesmanDetails from "./admin/SalesmanDetails";
+import AllAdmin from "./admin/Alladmin";
 
 function App() {
   useEffect(() => {
@@ -85,6 +88,18 @@ function App() {
         {
           path: "/admin/add-ambasador",
           element:<AddAmbasaddor />
+        },
+        {
+          path: "/admin/salesman",
+          element:<Salesman />
+        },
+        {
+          path: "/admin/salesman/:id",
+          element:<SalesmanDetails />
+        },
+        {
+          path: "/admin/all-admins",
+          element:<AllAdmin />
         },
       ],
     },

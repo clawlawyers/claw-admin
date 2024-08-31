@@ -1,4 +1,4 @@
-import {  Delete, Edit,   CheckRounded } from "@mui/icons-material";
+import { Delete, Edit, CheckRounded } from "@mui/icons-material";
 import React, { useState, useEffect, useRef } from "react";
 
 import Papa from "papaparse";
@@ -6,8 +6,10 @@ import { saveAs } from "file-saver";
 
 import toast from "react-hot-toast";
 
-import {  Popover,  } from "@mui/material";
+import { Popover } from "@mui/material";
 import UserFeatureDialog from "./components/UserFeatureDialog";
+import { GetCustomCourtroomUsers } from "./actions/CustomCourtroom.action";
+import dayjs from "dayjs";
 
 const CustomCourtrrom = () => {
   const [userData, setUserData] = useState([]);
@@ -21,6 +23,20 @@ const CustomCourtrrom = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const tableRef = useRef(null);
 
+  const getAllUsers = async () => {
+    try {
+      const res = await GetCustomCourtroomUsers();
+      console.log(res);
+      setUserData(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -33,47 +49,7 @@ const CustomCourtrrom = () => {
   const id = open ? "simple-popover" : undefined;
 
   // Dummy data for testing
-  const dummyData = [
-    // Add your dummy data here
-    {
-      userId: "1",
-      name: "John Doe",
-      email: "johndoe@example.com",
-      domain: "example.com",
-      startDate: "2024-08-01",
-      endDate: "2024-08-10",
-      recording: "Yes",
-      totalHours: "40",
-      usedTime: "35",
-    },
-    {
-      userId: "2",
-      name: "Jane Smith",
-      email: "janesmith@example.com",
-      domain: "example.org",
-      startDate: "2024-08-05",
-      endDate: "2024-08-12",
-      recording: "No",
-      totalHours: "30",
-      usedTime: "25",
-    },
-    {
-      userId: "3",
-      name: "Robert Brown",
-      email: "robertbrown@example.net",
-      domain: "example.net",
-      startDate: "2024-08-03",
-      endDate: "2024-08-09",
-      recording: "Yes",
-      totalHours: "20",
-      usedTime: "18",
-    },
-  ];
-
-  useEffect(() => {
-    // Instead of fetching from API, use dummy data
-    setUserData(dummyData);
-  }, []);
+ 
 
   const handleDelete = (userId) => {
     setUserData((prevUserData) =>
@@ -152,7 +128,9 @@ const CustomCourtrrom = () => {
 
   return (
     <section
-      className={`h-screen w-full flex flex-row justify-center items-center gap-5 p-5  ${open ? "blur-lg" : ""}`}
+      className={`h-screen w-full flex flex-row justify-center items-center gap-5 p-5  ${
+        open ? "blur-lg" : ""
+      }`}
     >
       <div className="flex flex-col justify-center h-full w-full items-center">
         <div
@@ -210,10 +188,10 @@ const CustomCourtrrom = () => {
                         />
                       </td>
                       <td className="p-2 ">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.userId}
+                            value={user._id}
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
@@ -224,7 +202,7 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.userId
+                          user._id
                         )}
                       </td>
                       <td className="p-2">
@@ -278,7 +256,7 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.domain
+                          user.Domain
                         )}
                       </td>
                       <td className="p-2">
@@ -296,7 +274,7 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.startDate
+                          dayjs(user.startDate).format("YYYY-MM-DD")
                         )}
                       </td>
                       <td className="p-2">
@@ -314,7 +292,7 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.endDate
+                          dayjs(user.endDate).format("YYYY-MM-DD")
                         )}
                       </td>
                       <td className="p-2 text-center">
@@ -332,7 +310,7 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.recording
+                          user.recording ? "Yes" : "No"
                         )}
                       </td>
                       <td className="p-2 text-center">
@@ -357,7 +335,7 @@ const CustomCourtrrom = () => {
                         {editableUserId === user.userId ? (
                           <input
                             type="text"
-                            value={user.usedTime}
+                            value={user.totalUsedHours}
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
@@ -368,7 +346,7 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.usedTime
+                          user.totalUsedHours
                         )}
                       </td>
                       <td className="p-2">
@@ -392,7 +370,7 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2">
-                      <button onClick={() => confirmDelete(user)}>
+                        <button onClick={() => confirmDelete(user)}>
                           <Delete className="text-teal-600 cursor-pointer" />
                         </button>
                       </td>
@@ -401,7 +379,7 @@ const CustomCourtrrom = () => {
               </tbody>
             </table>
             <Popover
-            // className={`${open ? "backdrop-blur-lg " : ""}`}
+              // className={`${open ? "backdrop-blur-lg " : ""}`}
               id={id}
               open={open}
               anchorReference="none"
@@ -416,7 +394,7 @@ const CustomCourtrrom = () => {
                   backgroundColor: "#0E5156",
                   border: "2px solid white", // Updated to include border style
                   width: "700px",
-                  borderRadius:"10px"
+                  borderRadius: "10px",
                 },
               }}
             >
@@ -425,70 +403,69 @@ const CustomCourtrrom = () => {
           </div>
           {deleteDialog && userToDelete && (
             <div
-            className="py-3"
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              left: "0",
-              right: "0",
-              backdropFilter: "blur(3px)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: "10",
-            }}
-          >
-            <div className="m-32 w-2/3 flex flex-col border-4 border-red-600 rounded bg-gradient-to-r from-[#008080] to-[#003131]">
-              <div className="p-3 flex w-full justify-between items-center">
-                <h5 className="m-0 px-1 font-bold">
-                  Proceed with Deleting User?
-                </h5>
-                <svg
-                  className="h-10 w-10 cursor-pointer"
-                  fill="white"
-                  clipRule="evenodd"
-                  fillRule="evenodd"
-                  strokeLinejoin="round"
-                  strokeMiterlimit="2"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  onClick={cancelDelete}
-                >
-                  <path
-                    d="m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm4.292 6.707c-.391-.391-1.024-.391-1.415 0l-2.877 2.877-2.877-2.877c-.391-.391-1.024-.391-1.415 0-.391.391-.391 1.024 0 1.415l2.878 2.878-2.878 2.878c-.391.391-.391 1.024 0 1.415.391.391 1.024.391 1.415 0l2.877-2.878 2.877 2.878c.391.391 1.024.391 1.415 0 .391-.391.391-1.024 0-1.415l-2.878-2.878 2.878-2.878c.391-.391.391-1.024 0-1.415z"
-                    fillRule="nonzero"
-                  />
-                </svg>
-              </div>
+              className="py-3"
+              style={{
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                left: "0",
+                right: "0",
+                backdropFilter: "blur(3px)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: "10",
+              }}
+            >
+              <div className="m-32 w-2/3 flex flex-col border-4 border-red-600 rounded bg-gradient-to-r from-[#008080] to-[#003131]">
+                <div className="p-3 flex w-full justify-between items-center">
+                  <h5 className="m-0 px-1 font-bold">
+                    Proceed with Deleting User?
+                  </h5>
+                  <svg
+                    className="h-10 w-10 cursor-pointer"
+                    fill="white"
+                    clipRule="evenodd"
+                    fillRule="evenodd"
+                    strokeLinejoin="round"
+                    strokeMiterlimit="2"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    onClick={cancelDelete}
+                  >
+                    <path
+                      d="m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm4.292 6.707c-.391-.391-1.024-.391-1.415 0l-2.877 2.877-2.877-2.877c-.391-.391-1.024-.391-1.415 0-.391.391-.391 1.024 0 1.415l2.878 2.878-2.878 2.878c-.391.391-.391 1.024 0 1.415.391.391 1.024.391 1.415 0l2.877-2.878 2.877 2.878c.391.391 1.024.391 1.415 0 .391-.391.391-1.024 0-1.415l-2.878-2.878 2.878-2.878c.391-.391.391-1.024 0-1.415z"
+                      fillRule="nonzero"
+                    />
+                  </svg>
+                </div>
 
-              <div className="flex flex-col px-10">
-                <div>
-                  
-                  <p>
-                    <span className="font-bold">Username:</span>{" "}
-                    {userToDelete.name}
-                  </p>
+                <div className="flex flex-col px-10">
+                  <div>
+                    <p>
+                      <span className="font-bold">Username:</span>{" "}
+                      {userToDelete.name}
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <span className="font-bold">Domain:</span>{" "}
+                      {userToDelete.email}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  
-                  <p>
-                    <span className="font-bold">Domain:</span>{" "}
-                    {userToDelete.email}
-                  </p>
+                <div className="w-full p-3 px-10 flex justify-end items-center">
+                  <button
+                    className="flex justify-center items-center px-4 p-2 text-center bg-white text-teal-700 border-2 border-white rounded font-bold"
+                    onClick={() =>
+                      handleDelete(userToDelete._id, userToDelete.userId)
+                    }
+                  >
+                    Confirm
+                  </button>
                 </div>
-                
-              </div>
-              <div className="w-full p-3 px-10 flex justify-end items-center">
-                <button
-                  className="flex justify-center items-center px-4 p-2 text-center bg-white text-teal-700 border-2 border-white rounded font-bold"
-                  onClick={() => handleDelete(userToDelete._id ,userToDelete.userId)}
-                >
-                  Confirm
-                </button>
               </div>
             </div>
-          </div>
           )}
         </div>
       </div>

@@ -9,6 +9,9 @@
     background: linear-gradient(180deg, #0E1118 0%, #1D2330 100%);
 
 }
+input{
+  color:black
+}
 
 .container {
   display: flex;

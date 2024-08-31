@@ -1,12 +1,30 @@
 import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
+import { getAllUsers } from "./actions/Users.action";
+import dayjs from "dayjs";
 
 const Users = () => {
+  const [userData, setUserData] = useState([]);
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getAllUsers();
+      setUserData(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
   // Dummy user data
   const initialUserData = [
     {
@@ -38,7 +56,6 @@ const Users = () => {
     // Add more dummy data as needed
   ];
 
-  const [userData, setUserData] = useState(initialUserData);
   const [searchTerm, setSearchTerm] = useState("");
   const [userAddDialog, setUserDialog] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -253,39 +270,24 @@ const Users = () => {
                         )}
                       </td>
                       <td className="p-2">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.plans}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "plans",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          />
-                        ) : (
-                          user.plans
-                        )}
+                        {user.planNames.length}
                       </td>
                       <td className="p-2 text-center">
                         {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.tokenUsed}
+                            value={user.totalTokenUsed}
                             onChange={(e) =>
                               handleInputChange(
                                 user._id,
-                                "tokenUsed",
+                                "totalTokenUsed",
                                 e.target.value
                               )
                             }
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
                         ) : (
-                          user.tokenUsed
+                          user.totalTokenUsed
                         )}
                       </td>
                       <td className="p-2 text-center">
@@ -309,7 +311,7 @@ const Users = () => {
                       <td className="p-2 text-center">
                         {editableUserId === user._id ? (
                           <select
-                            value={user.state}
+                            value={user.StateLocation}
                             onChange={(e) =>
                               handleInputChange(
                                 user._id,
@@ -323,14 +325,14 @@ const Users = () => {
                             <option value="Inactive">Inactive</option>
                           </select>
                         ) : (
-                          user.state
+                          user.StateLocation
                         )}
                       </td>
                       <td className="p-2 text-center">
                         {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.dailyEngagementTime}
+                            value={user.engagementTime.daily}
                             onChange={(e) =>
                               handleInputChange(
                                 user._id,
@@ -341,14 +343,14 @@ const Users = () => {
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
                         ) : (
-                          user.dailyEngagementTime
+                          user.engagementTime.daily
                         )}
                       </td>
                       <td className="p-2 text-center">
                         {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.monthlyEngagementTime}
+                            value={user.engagementTime.monthly}
                             onChange={(e) =>
                               handleInputChange(
                                 user._id,
@@ -359,14 +361,14 @@ const Users = () => {
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
                         ) : (
-                          user.monthlyEngagementTime
+                          user.engagementTime.monthly
                         )}
                       </td>
                       <td className="p-2 text-center">
                         {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.totalEngagementTime}
+                            value={user.engagementTime.total}
                             onChange={(e) =>
                               handleInputChange(
                                 user._id,
@@ -377,11 +379,11 @@ const Users = () => {
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
                         ) : (
-                          user.totalEngagementTime
+                          user.engagementTime.total
                         )}
                       </td>
-                      <td className="p-2 text-center">{user.createdAt}</td>
-                      <td className="p-2 text-center">{user.updatedAt}</td>
+                      <td className="p-2 text-center">{dayjs(user.createdAt).format("YYYY-MM-DD")}</td>
+                      <td className="p-2 text-center">{dayjs(user.updatedAt).format("YYYY-MM-DD")}</td>
                       <td className="p-2 text-center">
                         <button
                           onClick={() => toggleEdit(user._id)}
@@ -409,9 +411,7 @@ const Users = () => {
               <div className="bg-card-gradient p-4 rounded-md shadow-lg">
                 <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
                 <p className="mb-4">
-                  Are you sure you want to delete the user?
-                  
-                  ?
+                  Are you sure you want to delete the user? ?
                 </p>
                 <div className="flex justify-end space-x-4">
                   <button
