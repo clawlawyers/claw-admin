@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
+import { getSubscribedUsers } from "./actions/Users.action";
 
 const SubscribedUsers = () => {
   // Dummy user data
@@ -26,13 +27,27 @@ const SubscribedUsers = () => {
     },
   ];
 
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [editableUserId, setEditableUserId] = useState(null);
   const [originalUserData, setOriginalUserData] = useState(null);
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getSubscribedUsers();
+      setUserData(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handleDelete = () => {
     setUserData((prevUserData) =>

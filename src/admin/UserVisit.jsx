@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Tab } from "@headlessui/react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { getCoupons } from "./actions/Users.action";
 
 // Register the necessary components for the bar chart
 ChartJS.register(
@@ -22,6 +23,22 @@ ChartJS.register(
 );
 
 const UserVisit = () => {
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getCoupons();
+      setUserData(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  const [userData, setUserData] = useState([]);
+
   // Sample data for daily, monthly, and yearly visits
   const dailyData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],

@@ -1,10 +1,11 @@
 import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
+import { getRefferalCodes } from "./actions/Users.action";
 
 const Referral = () => {
   const initialUserData = [
@@ -80,7 +81,7 @@ const Referral = () => {
     },
   ];
 
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [userAddDialog, setUserDialog] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -88,6 +89,20 @@ const Referral = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [editableUserId, setEditableUserId] = useState(null);
   const [originalUserData, setOriginalUserData] = useState(null);
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getRefferalCodes();
+      setUserData(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handleDelete = (userId) => {
     setUserData((prevUserData) =>
@@ -259,7 +274,6 @@ const Referral = () => {
                   <th className="p-2">Daily Engagement Time</th>
                   <th className="p-2">Monthly Engagement Time</th>
                   <th className="p-2">Yearly Engagement Time</th>
-                 
                 </tr>
               </thead>
               <tbody>
@@ -410,17 +424,11 @@ const Referral = () => {
                         user.yearlyEngagementTime
                       )}
                     </td>
-              
-                   
-                     
-                   
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-         
         </div>
       </div>
     </section>

@@ -1,12 +1,15 @@
 import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import { Popover } from "@mui/material";
 import AddCoupon from "./components/AddCoupon";
 
+import { getCoupons } from "./actions/Users.action";
+
 const CouponCode = () => {
+  const [userData, setUserData] = useState([]);
   const [anchorElExport, setAnchorElExport] = useState(null);
   const [anchorElAdd, setAnchorElAdd] = useState(null);
   const [couponData, setCouponData] = useState(initialCouponData);
@@ -17,6 +20,20 @@ const CouponCode = () => {
   const [editableCouponId, setEditableCouponId] = useState(null);
   const [originalCouponData, setOriginalCouponData] = useState(null);
   const [couponDialog, setCouponDialog] = useState(false);
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getCoupons();
+      setUserData(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handleClickExport = (event) => {
     setAnchorElExport(event.currentTarget);
@@ -160,13 +177,8 @@ const CouponCode = () => {
                 </tr>
               </thead>
               <tbody>
-                {couponData
-                  .filter((coupon) =>
-                    coupon.couponCode
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  )
-                  .map((coupon) => (
+                {userData.length > 0 &&
+                  userData.map((coupon) => (
                     <tr key={coupon._id} className="border-b">
                       <td className="p-2 text-left">
                         <input
@@ -193,7 +205,7 @@ const CouponCode = () => {
                             className="border-2 border-gray-300 rounded-lg p-1"
                           />
                         ) : (
-                          coupon.couponCode
+                          coupon.code
                         )}
                       </td>
                       <td className="p-2 text-left">
@@ -366,7 +378,6 @@ const CouponCode = () => {
           style: {
             width: "400px",
             borderRadius: "10px",
-            
           },
         }}
       >

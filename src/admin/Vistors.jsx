@@ -265,7 +265,7 @@ const Visitor = () => {
                       .toLowerCase()
                       .includes(searchTerm.toLowerCase())
                   )
-                  .filter((user) => 
+                  .filter((user) =>
                     user.plan.toLowerCase().includes(searchTerm.toLowerCase())
                   )
                   .map((user) => (
@@ -402,7 +402,10 @@ const Visitor = () => {
       {userToDelete && deleteDialog && (
         <div className="absolute inset-0 flex items-center backdrop-blur-sm justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-[#D9D9D9] text-teal-600 font-bold p-5 rounded-lg text-center">
-            <p>Are you sure you want to delete ? <br/ >{userToDelete.phoneNumber}?</p>
+            <p>
+              Are you sure you want to delete ? <br />
+              {userToDelete.phoneNumber}?
+            </p>
             <div className="flex justify-center gap-3 mt-3">
               <button
                 onClick={() => handleDelete(userToDelete._id)}
