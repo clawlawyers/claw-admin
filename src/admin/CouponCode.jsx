@@ -194,7 +194,7 @@ const CouponCode = () => {
                         {editableCouponId === coupon._id ? (
                           <input
                             type="text"
-                            value={coupon.couponCode}
+                            value={coupon.code}
                             onChange={(e) =>
                               handleInputChange(
                                 coupon._id,

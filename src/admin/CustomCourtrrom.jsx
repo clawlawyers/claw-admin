@@ -49,7 +49,6 @@ const CustomCourtrrom = () => {
   const id = open ? "simple-popover" : undefined;
 
   // Dummy data for testing
- 
 
   const handleDelete = (userId) => {
     setUserData((prevUserData) =>
@@ -309,8 +308,10 @@ const CustomCourtrrom = () => {
                             }
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
+                        ) : user.recording ? (
+                          "Yes"
                         ) : (
-                          user.recording ? "Yes" : "No"
+                          "No"
                         )}
                       </td>
                       <td className="p-2 text-center">

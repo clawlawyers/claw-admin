@@ -9,12 +9,11 @@ const AdminLayout = () => {
   console.log(user);
   const location = useLocation();
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate("/");
-    
-  //   }
-  // },[]);
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, []);
   return (
     <main className="h-screen w-full flex flex-col md:flex-row justify-start items-start gap-5 p-5">
       <div className="w-full md:w-[20%] flex flex-col h-full hide-scrollbar  max-h-full overflow-y-auto gap-2">

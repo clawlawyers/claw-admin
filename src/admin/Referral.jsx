@@ -2,6 +2,8 @@ import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
 import React, { useCallback, useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
+import { Popover } from "@mui/material";
+
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
@@ -89,6 +91,8 @@ const Referral = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [editableUserId, setEditableUserId] = useState(null);
   const [originalUserData, setOriginalUserData] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedId, setselectediD] = useState(0);
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -138,7 +142,7 @@ const Referral = () => {
   };
 
   const handleClose = () => {
-    setUserDialog(false);
+    setAnchorEl(null);
   };
 
   const handleCheckboxChange = (userId, isChecked) => {
@@ -169,6 +173,8 @@ const Referral = () => {
     }
   };
 
+  const open = Boolean(anchorEl);
+
   const handleInputChange = (userId, field, value) => {
     setUserData((prevUserData) =>
       prevUserData.map((user) =>
@@ -190,6 +196,12 @@ const Referral = () => {
 
     setEditableUserId(null); // Exit edit mode
     setOriginalUserData(null); // Clear original data
+  };
+
+  const handleClick = (event, selectedId) => {
+    console.log(selectedId);
+    setAnchorEl(event.currentTarget);
+    setselectediD(selectedId);
   };
 
   return (
@@ -265,19 +277,23 @@ const Referral = () => {
                       }
                     />
                   </th>
-                  <th className="p-2">Phone Number</th>
+                  <th className="p-2">Code</th>
+                  <th className="p-2">No of redemption</th>
+                  <th className="p-2">Create Date</th>
+                  <th className="p-2">Update Date</th>
                   <th className="p-2">First Name</th>
                   <th className="p-2">Last Name</th>
-                  <th className="p-2">Plan</th>
+                  <th className="p-2">Phone Number</th>
+                  {/* <th className="p-2">Plan</th>
                   <th className="p-2">Tokens Used</th>
                   <th className="p-2">Total Tokens Available</th>
                   <th className="p-2">Daily Engagement Time</th>
                   <th className="p-2">Monthly Engagement Time</th>
-                  <th className="p-2">Yearly Engagement Time</th>
+                  <th className="p-2">Yearly Engagement Time</th> */}
                 </tr>
               </thead>
               <tbody>
-                {userData.map((user) => (
+                {userData.map((user, i) => (
                   <tr
                     key={user._id}
                     className="border-b border-neutral-700 text-white"
@@ -291,12 +307,27 @@ const Referral = () => {
                         }
                       />
                     </td>
-                    <td className="p-2 text-center">{user.phoneNumber}</td>
+
+                    <td className="p-2 text-center">{user.referralCode}</td>
+                    <td className="p-2 text-center">
+                      {user.redeemedBy.length}
+                    </td>
+                    <td className="p-2 text-center">{user.createdAt}</td>
+                    <td className="p-2 text-center">{user.updatedAt}</td>
+                    <td className="p-2 text-center">
+                      {user.generatedBy.firstName}
+                    </td>
+                    <td className="p-2 text-center">
+                      {user.generatedBy.lastName}
+                    </td>
+                    <td className="p-2 text-center">
+                      {user.generatedBy.phoneNumber}
+                    </td>
                     <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
                           className="bg-black p-1 text-center w-20"
-                          value={user.firstName}
+                          value={user.redeemedBy.firstName}
                           onChange={(e) =>
                             handleInputChange(
                               user._id,
@@ -306,14 +337,14 @@ const Referral = () => {
                           }
                         />
                       ) : (
-                        user.firstName
+                        user.redeemedBy.firstName
                       )}
                     </td>
                     <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
                           className="bg-black p-1 text-center w-20"
-                          value={user.lastName}
+                          value={user.redeemedBy.lastName}
                           onChange={(e) =>
                             handleInputChange(
                               user._id,
@@ -323,7 +354,7 @@ const Referral = () => {
                           }
                         />
                       ) : (
-                        user.lastName
+                        user.redeemedBy.lastName
                       )}
                     </td>
                     <td className="p-2 text-center">
@@ -407,27 +438,87 @@ const Referral = () => {
                         user.monthlyEngagementTime
                       )}
                     </td>
-                    <td className="p-2 text-center">
-                      {editableUserId === user._id ? (
-                        <input
-                          className="bg-black p-1 text-center w-20"
-                          value={user.yearlyEngagementTime}
-                          onChange={(e) =>
-                            handleInputChange(
-                              user._id,
-                              "yearlyEngagementTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      ) : (
-                        user.yearlyEngagementTime
-                      )}
+
+                    <td>
+                      <button
+                        aria-describedby={user._id}
+                        onClick={(e) => handleClick(e, i)}
+                        className="bg-[#0E5156] p-2 rounded-md text-xs"
+                      >
+                        All Redemption
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <Popover
+              // className={`${open ? "backdrop-blur-lg " : ""}`}
+              // id={id}
+              open={open}
+              anchorReference="none"
+              onClose={handleClose}
+              PaperProps={{
+                style: {
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-20%, -50%)",
+                  padding: "20px",
+                  backgroundColor: "#0E5156",
+                  border: "2px solid white", // Updated to include border style
+                  width: "700px",
+                  height: "700px",
+                  borderRadius: "10px",
+                },
+              }}
+            >
+              <div className="flex ">
+                <table className="w-full table-auto text-sm">
+                  <thead>
+                    <tr className=" text-white bg-teal-500">
+                      <th className="p-2">First Name</th>
+                      <th className="p-2">Last Name</th>
+                      <th className="p-2">Phone Number</th>
+                      <th className="p-2">Plan name</th>
+                      <th className="p-2">Total Token</th>
+                      <th className="p-2">Used Token</th>
+                      {/* <th className="p-2">Plan</th>
+                  <th className="p-2">Tokens Used</th>
+                  <th className="p-2">Total Tokens Available</th>
+                  <th className="p-2">Daily Engagement Time</th>
+                  <th className="p-2">Monthly Engagement Time</th>
+                  <th className="p-2">Yearly Engagement Time</th> */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userData.length > 0 &&
+                      userData[selectedId].redeemedBy.map((user, i) => (
+                        <tr
+                          key={i}
+                          className="border-b border-neutral-700 text-white"
+                        >
+                          <td className="p-2 text-center"> {user.firstName}</td>
+                          <td className="p-2 text-center">{user.lastName}</td>
+
+                          <td className="p-2 text-center">
+                            {user.phoneNumber}
+                          </td>
+                          <td className="p-2 text-center">
+                            {user.plan.planName}
+                          </td>
+                          <td className="p-2 text-center">
+                            {user.plan.token.total}
+                          </td>
+                          <td className="p-2 text-center">
+                            {user.plan.token.used}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </Popover>
           </div>
         </div>
       </div>

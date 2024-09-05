@@ -22,12 +22,18 @@ ChartJS.register(
   Legend
 );
 
-const UserVisit = () => {
+const ProductBasedVisit = () => {
   const fetchUserData = useCallback(async () => {
     try {
       const res = await getVistors("dailyuserpagevisit");
-      setUserData(res);
+      var data = [];
+      res.map((i) => {
+        data.push(i.visits.totalVisits);
+        console.log(data);
+      });
+      setUserData(data);
       console.log(res);
+      console.log(userData);
     } catch (error) {
       console.error(error.message);
     }
@@ -41,11 +47,11 @@ const UserVisit = () => {
 
   // Sample data for daily, monthly, and yearly visits
   const dailyData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: ["blog", "legalGPT", "News", "CaseSearch"],
     datasets: [
       {
         label: "Daily Visits",
-        data: [30, 50, 80, 40, 60, 70, 90],
+        data: userData,
         backgroundColor: "rgba(75, 192, 192, 0.5)",
       },
     ],
@@ -133,4 +139,4 @@ const UserVisit = () => {
   );
 };
 
-export default UserVisit;
+export default ProductBasedVisit;

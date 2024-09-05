@@ -26,12 +26,15 @@ import AddAmbasaddor from "./admin/AddAmbasaddor";
 import Salesman from "./admin/Salesman";
 import SalesmanDetails from "./admin/SalesmanDetails";
 import AllAdmin from "./admin/Alladmin";
+import ProductBasedVisit from "./admin/ProductBasedVisit";
 
 function App() {
   useEffect(() => {
     store.dispatch(retrieveUserslist());
+    store.dispatch(retrieveUserslist());
     store.dispatch(retrieveAuth());
   }, []);
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -52,21 +55,28 @@ function App() {
         {
           path: "/admin/sub-users",
           element: <SubscribedUsers />,
+          element: <SubscribedUsers />,
         },
         {
           path: "/admin/court-room",
           element: <CourtRoomUsers />,
+          element: <CourtRoomUsers />,
         },
         {
           path: "/admin/allowed-booking",
+          path: "/admin/allowed-booking",
+          element: <AllowedBooking />,
           element: <AllowedBooking />,
         },
         {
+          path: "/admin/allowed-login",
           path: "/admin/allowed-login",
           element: <AllowedLogin />,
         },
         {
           path: "/admin/custom-courtroom",
+          path: "/admin/custom-courtroom",
+          element: <CustomCourtrrom />,
           element: <CustomCourtrrom />,
         },
         {
@@ -75,31 +85,42 @@ function App() {
         },
         {
           path: "/admin/visitor",
-          element:<Visitors />,
+          element: <Visitors />,
         },
         {
           path: "/admin/coupon-code",
-          element:<CouponCode />
+          path: "/admin/coupon-code",
+          element: <CouponCode />,
         },
         {
           path: "/admin/user-visit",
-          element:<UserVisit />
+          element: <UserVisit />,
         },
         {
           path: "/admin/add-ambasador",
-          element:<AddAmbasaddor />
+          path: "/admin/add-ambasador",
+          element: <AddAmbasaddor />,
+          element: <AddAmbasaddor />,
         },
         {
           path: "/admin/salesman",
-          element:<Salesman />
+          element: <Salesman />,
         },
         {
           path: "/admin/salesman/:id",
-          element:<SalesmanDetails />
+          path: "/admin/salesman/:id",
+          element: <SalesmanDetails />,
+          element: <SalesmanDetails />,
         },
         {
           path: "/admin/all-admins",
-          element:<AllAdmin />
+          element: <AllAdmin />,
+        },
+        {
+          path: "/admin/productbasedvisit",
+          path: "/admin/productbasedvisit",
+          element: <ProductBasedVisit />,
+          element: <ProductBasedVisit />,
         },
       ],
     },

@@ -18,7 +18,6 @@ import dayjs from "dayjs";
 
 const CourtRoomUsers = () => {
   const [userData, setUserData] = useState([]);
- 
 
   const [searchTerm, setSearchTerm] = useState("");
   const [userAddDialog, setUserDialog] = useState(false);
@@ -52,7 +51,7 @@ const CourtRoomUsers = () => {
     phoneNumber: "",
     recording: false,
   });
-  
+
   const getAllData = async () => {
     setIsLoading(true);
     try {
@@ -68,7 +67,7 @@ const CourtRoomUsers = () => {
       setUserData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -198,7 +197,7 @@ const CourtRoomUsers = () => {
 
   const handleEdit = (booking, user) => {
     setEditingUserId(booking._id);
-    
+
     const formData = {
       date: user.date,
       hour: user.hour,
@@ -207,11 +206,10 @@ const CourtRoomUsers = () => {
       phoneNumber: booking.phoneNumber,
       recording: booking.recording,
     };
-  
+
     setEditFormData(formData);
     setOriginalFormData(formData); // Store the original data
   };
-  
 
   const handleEditFormChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -223,18 +221,18 @@ const CourtRoomUsers = () => {
     // Check if any data has changed
     if (JSON.stringify(editFormData) === JSON.stringify(originalFormData)) {
       // No changes detected, skip API call
-      
+
       setEditingUserId(null);
       return;
     }
-  
+
     // Proceed with API call if data has changed
     try {
       await axios.put(
         `${NODE_API_ENDPOINT}/admin/update/users/${userId}`,
         editFormData
       );
-  
+
       await axios.put(
         `${NODE_API_ENDPOINT}/admin/bookings/${bookingId}/users/${userId}/slot`,
         {
@@ -242,7 +240,7 @@ const CourtRoomUsers = () => {
           newHour: editFormData.hour,
         }
       );
-  
+
       setUserData((prevUserData) =>
         prevUserData.map((user) => ({
           ...user,
@@ -256,13 +254,12 @@ const CourtRoomUsers = () => {
           ),
         }))
       );
-  
+
       setEditingUserId(null);
     } catch (error) {
       console.error("Error updating user data:", error);
     }
   };
-  
 
   const handleAdd = (newUser) => {
     console.log(newUser);
