@@ -21,6 +21,7 @@ const CustomCourtrrom = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [editableUserId, setEditableUserId] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedId, setselectedId] = useState(0);
   const tableRef = useRef(null);
 
   const getAllUsers = async () => {
@@ -37,8 +38,9 @@ const CustomCourtrrom = () => {
     getAllUsers();
   }, []);
 
-  const handleClick = (event) => {
+  const handleClick = (event, i) => {
     setAnchorEl(event.currentTarget);
+    setselectedId(i);
   };
 
   const handleClose = () => {
@@ -175,7 +177,7 @@ const CustomCourtrrom = () => {
                     }
                     return null;
                   })
-                  .map((user) => (
+                  .map((user, i) => (
                     <tr key={user.userId} className="border-b border-teal-600">
                       <td className="p-2 text-center">
                         <input
@@ -347,13 +349,13 @@ const CustomCourtrrom = () => {
                             className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
                           />
                         ) : (
-                          user.totalUsedHours
+                          (user.totalUsedHours * 60).toFixed(2) + "min"
                         )}
                       </td>
                       <td className="p-2">
                         <button
                           aria-describedby={id}
-                          onClick={handleClick}
+                          onClick={(e) => handleClick(e, i)}
                           className="bg-[#0E5156] p-2 rounded-md text-xs"
                         >
                           User Custom features
@@ -399,7 +401,11 @@ const CustomCourtrrom = () => {
                 },
               }}
             >
-              <UserFeatureDialog handleClose={handleClose} />
+              <UserFeatureDialog
+                handleClose={handleClose}
+                userData={userData}
+                selectedId={selectedId}
+              />
             </Popover>
           </div>
           {deleteDialog && userToDelete && (

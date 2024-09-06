@@ -23,21 +23,63 @@ ChartJS.register(
 );
 
 const UserVisit = () => {
+  const types = ["everyDayData", "everyMonthData", "everyYearData"];
   const fetchUserData = useCallback(async () => {
     try {
-      const res = await getVistors("dailyuserpagevisit");
-      setUserData(res);
+      console.log(type);
+      const res = await getVistors(types[type]);
+      var data = [];
+      res.map((i) => {
+        var count = 0;
+        i.map((e) => {
+          e.visits.map((o) => {
+            count += o.totalVisits;
+          });
+        });
+        data.push(count);
+      });
+      console.log(data);
+
+      setUserData(data);
       console.log(res);
     } catch (error) {
       console.error(error.message);
     }
   }, []);
+  const fetchUserDatafunc = async () => {
+    try {
+      console.log(type);
+      const res = await getVistors(types[type]);
+      var data = [];
+      res.map((i) => {
+        var count = 0;
+        i.map((e) => {
+          e.visits.map((o) => {
+            count += o.totalVisits;
+          });
+        });
+        data.push(count);
+      });
+      console.log(data);
+
+      setUserData(data);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
 
   const [userData, setUserData] = useState([]);
+  const [type, setType] = useState(0);
+
+  useEffect(() => {
+    console.log("hi");
+    fetchUserDatafunc();
+  }, [type]);
 
   // Sample data for daily, monthly, and yearly visits
   const dailyData = {
@@ -45,7 +87,7 @@ const UserVisit = () => {
     datasets: [
       {
         label: "Daily Visits",
-        data: [30, 50, 80, 40, 60, 70, 90],
+        data: userData,
         backgroundColor: "rgba(75, 192, 192, 0.5)",
       },
     ],
@@ -69,20 +111,18 @@ const UserVisit = () => {
     datasets: [
       {
         label: "Monthly Visits",
-        data: [
-          400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500,
-        ],
+        data: userData,
         backgroundColor: "rgba(153, 102, 255, 0.5)",
       },
     ],
   };
 
   const yearlyData = {
-    labels: ["2020", "2021", "2022", "2023", "2024"],
+    labels: ["2024"],
     datasets: [
       {
         label: "Yearly Visits",
-        data: [3000, 5000, 7000, 10000, 12000],
+        data: userData,
         backgroundColor: "rgba(255, 159, 64, 0.5)",
       },
     ],
@@ -98,9 +138,10 @@ const UserVisit = () => {
         <div className="flex flex-col h-[70vh] justify-start  items-start w-full">
           <Tab.Group className="flex flex-col gap-10 h-full justify-between">
             <Tab.List className="flex gap-4">
-              {["Daily", "Monthly", "Yearly"].map((tab) => (
+              {["Daily", "Monthly", "Yearly"].map((tab, i) => (
                 <Tab
                   key={tab}
+                  onClick={() => setType(i)}
                   className={({ selected }) =>
                     `p-1 px-10 rounded-md border border-white transition-colors ${
                       selected

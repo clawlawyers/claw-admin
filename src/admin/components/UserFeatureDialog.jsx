@@ -2,19 +2,24 @@ import React, { useState } from "react";
 import { Button, Typography } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
-const UserFeatureDialog = ({ userData, handleClose }) => {
+const UserFeatureDialog = ({ userData, handleClose, selectedId }) => {
+  console.log(userData);
+  console.log(selectedId);
+
   const initialFeatures = [
     { id: 1, name: "Ai Lawyer", enabled: false },
     { id: 2, name: "Ai Judge", enabled: false },
-    { id: 3, name: "Feature 1", enabled: false },
-    { id: 4, name: "Feature 2", enabled: false },
-    { id: 5, name: "Feature 3", enabled: false },
-    { id: 6, name: "Feature 4", enabled: false },
-    { id: 7, name: "Feature 5", enabled: false },
-    { id: 8, name: "Feature 6", enabled: false },
+    { id: 3, name: "Evidences", enabled: false },
+    { id: 4, name: "AiAssistant", enabled: false },
+    { id: 5, name: "FirstDraft", enabled: false },
+    { id: 6, name: "LegalGPT", enabled: false },
+    { id: 7, name: "MultilingualSupport", enabled: false },
+    { id: 8, name: "RelevantCaseLaws", enabled: false },
+    { id: 9, name: "Verdict", enabled: false },
+    { id: 10, name: "VoiceInput", enabled: false },
     // Add more features as needed
   ];
-  
+
   const [features, setFeatures] = useState(initialFeatures);
   const [editing, setEditing] = useState(false);
 
@@ -22,7 +27,9 @@ const UserFeatureDialog = ({ userData, handleClose }) => {
     if (editing) {
       setFeatures((prevFeatures) =>
         prevFeatures.map((feature) =>
-          feature.id === id ? { ...feature, enabled: !feature.enabled } : feature
+          feature.id === id
+            ? { ...feature, enabled: !feature.enabled }
+            : feature
         )
       );
     }
@@ -38,7 +45,7 @@ const UserFeatureDialog = ({ userData, handleClose }) => {
       <section className="w-full flex flex-row justify-between items-center">
         <div className="text-white text-2xl">
           Custom Courtroom Features for <br />
-          <span className="font-semibold">{"Aditya Goel"}</span>
+          <span className="font-semibold">{userData[selectedId].name}</span>
         </div>
 
         <div className="flex flex-row items-center space-x-5">
@@ -58,20 +65,22 @@ const UserFeatureDialog = ({ userData, handleClose }) => {
 
       {/* features */}
       <div className="flex flex-wrap text-white justify-between items-center gap-4 w-full">
-        {features.map((feature) => (
-          <div key={feature.id} className="flex gap-4 flex-row items-center">
-            <Typography variant="body1">{feature.name}</Typography>
-            <button
-              onClick={() => toggleFeature(feature.id)}
-              disabled={!editing} // Disable button if not in editing mode
-              className={`border-black rounded-md p-2 px-5 ${
-                feature.enabled ? "bg-gray-600" : "bg-teal-600"
-              } ${!editing ? "opacity-50 cursor-not-allowed" : ""}`} // Apply styles for disabled state
-            >
-              {feature.enabled ? "Disabled" : "Enabled"}
-            </button>
-          </div>
-        ))}
+        {Object.entries(userData[selectedId].features)
+          .filter(([key, value]) => key != "_id")
+          .map(([key, value]) => (
+            <div key={key} className="flex gap-4 flex-row items-center">
+              <Typography variant="body1">{key}</Typography>
+              <button
+                onClick={() => toggleFeature(key)}
+                disabled={!editing} // Disable button if not in editing mode
+                className={`border-black rounded-md p-2 px-5 ${
+                  value ? "bg-teal-600" : "bg-gray-600"
+                } ${!editing ? "opacity-50 cursor-not-allowed" : ""}`} // Apply styles for disabled state
+              >
+                {value ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+          ))}
       </div>
     </main>
   );

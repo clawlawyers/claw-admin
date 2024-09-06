@@ -266,7 +266,7 @@ const SubscribedUsers = () => {
                         {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.tokensUsed}
+                            value={user.tokenUsed}
                             onChange={(e) =>
                               handleInputChange(
                                 user._id,
@@ -277,7 +277,7 @@ const SubscribedUsers = () => {
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
                         ) : (
-                          user.tokensUsed
+                          user.tokenUsed
                         )}
                       </td>
                       <td className="p-2 text-center">{user.createdAt}</td>

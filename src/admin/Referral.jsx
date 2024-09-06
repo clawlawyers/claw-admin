@@ -284,6 +284,8 @@ const Referral = () => {
                   <th className="p-2">First Name</th>
                   <th className="p-2">Last Name</th>
                   <th className="p-2">Phone Number</th>
+                  <th className="p-2"></th>
+                  <th className="p-2"></th>
                   {/* <th className="p-2">Plan</th>
                   <th className="p-2">Tokens Used</th>
                   <th className="p-2">Total Tokens Available</th>
@@ -323,41 +325,8 @@ const Referral = () => {
                     <td className="p-2 text-center">
                       {user.generatedBy.phoneNumber}
                     </td>
-                    <td className="p-2 text-center">
-                      {editableUserId === user._id ? (
-                        <input
-                          className="bg-black p-1 text-center w-20"
-                          value={user.redeemedBy.firstName}
-                          onChange={(e) =>
-                            handleInputChange(
-                              user._id,
-                              "firstName",
-                              e.target.value
-                            )
-                          }
-                        />
-                      ) : (
-                        user.redeemedBy.firstName
-                      )}
-                    </td>
-                    <td className="p-2 text-center">
-                      {editableUserId === user._id ? (
-                        <input
-                          className="bg-black p-1 text-center w-20"
-                          value={user.redeemedBy.lastName}
-                          onChange={(e) =>
-                            handleInputChange(
-                              user._id,
-                              "lastName",
-                              e.target.value
-                            )
-                          }
-                        />
-                      ) : (
-                        user.redeemedBy.lastName
-                      )}
-                    </td>
-                    <td className="p-2 text-center">
+                   
+                    {/* <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
                           className="bg-black p-1 text-center w-20"
@@ -369,8 +338,8 @@ const Referral = () => {
                       ) : (
                         user.plan
                       )}
-                    </td>
-                    <td className="p-2 text-center">
+                    </td> */}
+                    {/* <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
                           className="bg-black p-1 text-center w-20"
@@ -386,7 +355,8 @@ const Referral = () => {
                       ) : (
                         user.totalTokensUsed
                       )}
-                    </td>
+                    </td> */}
+                    {/*
                     <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
@@ -403,40 +373,32 @@ const Referral = () => {
                       ) : (
                         user.totalTokensAvailable
                       )}
-                    </td>
+                    </td> */}
+                    {/* <td className="p-2 text-center">
+                        {editableUserId === user._id ? (
+                          <input
+                            className="bg-black p-1 text-center w-20"
+                            value={user.dailyEngagementTime}
+                            onChange={(e) =>
+                              handleInputChange(
+                                user._id,
+                                "dailyEngagementTime",
+                                e.target.value
+                              )
+                            }
+                          />
+                        ) : (
+                          user.dailyEngagementTime
+                        )}
+                      </td> */}
+
                     <td className="p-2 text-center">
-                      {editableUserId === user._id ? (
-                        <input
-                          className="bg-black p-1 text-center w-20"
-                          value={user.dailyEngagementTime}
-                          onChange={(e) =>
-                            handleInputChange(
-                              user._id,
-                              "dailyEngagementTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      ) : (
-                        user.dailyEngagementTime
-                      )}
-                    </td>
-                    <td className="p-2 text-center">
-                      {editableUserId === user._id ? (
-                        <input
-                          className="bg-black p-1 text-center w-20"
-                          value={user.monthlyEngagementTime}
-                          onChange={(e) =>
-                            handleInputChange(
-                              user._id,
-                              "monthlyEngagementTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      ) : (
-                        user.monthlyEngagementTime
-                      )}
+                      <button
+                        onClick={() => confirmDelete(user)}
+                        className="text-teal-500 rounded-md p-1"
+                      >
+                        <Delete />
+                      </button>
                     </td>
 
                     <td>
