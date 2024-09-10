@@ -3,13 +3,16 @@ import React, { useCallback, useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import { Popover } from "@mui/material";
-
+import MenuItem from "@mui/material/MenuItem";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
 import { getRefferalCodes } from "./actions/Users.action";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
 
 const Referral = () => {
+  const [sortValue, setSort] = useState("");
   const initialUserData = [
     {
       _id: "1",
@@ -103,6 +106,49 @@ const Referral = () => {
       console.error(error.message);
     }
   }, []);
+  const handleSortChange = (event) => {
+    setSort(event.target.value);
+    if (event.target.value == 2) {
+      const data = userData.sort(
+        (a, b) => b.redeemedBy.length - a.redeemedBy.length
+      );
+      setUserData(data);
+    }
+    if (event.target.value == 1) {
+      const data = userData.sort(
+        (a, b) => a.redeemedBy.length - b.redeemedBy.length
+      );
+      setUserData(data);
+    }
+    if (event.target.value == 3) {
+      const data = userData.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+
+      setUserData(data);
+    }
+    if (event.target.value == 4) {
+      const data = userData.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setUserData(data);
+    }
+    if (event.target.value == 5) {
+      const data = userData.sort(
+        (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt)
+      );
+
+      setUserData(data);
+    }
+    if (event.target.value == 6) {
+      const data = userData.sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+
+      setUserData(data);
+    }
+  };
 
   useEffect(() => {
     fetchUserData();
@@ -229,7 +275,36 @@ const Referral = () => {
                 </div>
                 <div className="font-semibold">Filter</div>
               </button>
-
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                className="text-white"
+                label="SORT"
+                value={sortValue}
+                displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+                placeholder="asdsa"
+                onChange={handleSortChange}
+                style={{
+                  backgroundColor: "transparent", // Transparent background
+                  border: "2px solid #38b2ac", // Teal border
+                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)", // Shadow with black color
+                  borderRadius: "0.375rem", // Rounded corners (md size in Tailwind)
+                  color: "white", // White text
+                  padding: "0px 0px", // Padding for better appearance
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px", // Space between items (space-x-3 in Tailwind)
+                }}
+                IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
+              >
+                <MenuItem value={1}>Redemption High TO Low</MenuItem>
+                <MenuItem value={2}>Redemption Low TO High</MenuItem>
+                <MenuItem value={3}>Date Created Oldest</MenuItem>
+                <MenuItem value={4}>Date Created Latest</MenuItem>
+                <MenuItem value={5}>Date Updated Oldest</MenuItem>
+                <MenuItem value={6}>Date Updated Latest</MenuItem>
+              </Select>
               <button
                 onClick={handleDeleteSelected}
                 className={`bg-card-gradient shadow-lg space-x-3 p-2 px-2 rounded-md shadow-black text-white flex items-center ${
@@ -325,7 +400,7 @@ const Referral = () => {
                     <td className="p-2 text-center">
                       {user.generatedBy.phoneNumber}
                     </td>
-                   
+
                     {/* <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input

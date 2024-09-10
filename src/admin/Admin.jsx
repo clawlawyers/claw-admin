@@ -6,6 +6,13 @@ import {
   Check,
   ArrowDownward,
 } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Slider from "@mui/material/Slider";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+
 import React, { useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
@@ -17,7 +24,22 @@ import toast from "react-hot-toast";
 import dayjs from "dayjs";
 
 const CourtRoomUsers = () => {
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+  const [sortValue, setSort] = useState("");
   const [userData, setUserData] = useState([]);
+  const [record, setRecord] = useState(0);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setendDate] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [userAddDialog, setUserDialog] = useState(false);
@@ -34,6 +56,7 @@ const CourtRoomUsers = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
+  const [open, setOpen] = useState(false);
 
   const [editFormData, setEditFormData] = useState({
     date: "",
@@ -51,7 +74,37 @@ const CourtRoomUsers = () => {
     phoneNumber: "",
     recording: false,
   });
+  const handleCloseFilter = () => setOpen(false);
+  const handleDateChange = (event) => {
+    setStartDate(event.target.value);
+    console.log(event.target.value); // Update state with the new date
+  };
+  const handleEndDateChange = (event) => {
+    setendDate(event.target.value);
+    console.log(event.target.value); // Update state with the new date
+  };
 
+  const handleSortChange = (event) => {
+    setSort(event.target.value);
+    if (event.target.value == 2) {
+      const data = userData.sort((a, b) => b.hour - a.hour);
+      setUserData(data);
+    }
+    if (event.target.value == 1) {
+      const data = userData.sort((a, b) => a.hour - b.hour);
+      setUserData(data);
+    }
+    if (event.target.value == 3) {
+      const data = userData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      setUserData(data);
+    }
+    if (event.target.value == 4) {
+      const data = userData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setUserData(data);
+    }
+  };
   const getAllData = async () => {
     setIsLoading(true);
     try {
@@ -64,6 +117,7 @@ const CourtRoomUsers = () => {
       const filteredData = fetchedData.filter((user) =>
         user?.courtroomBookings.some((booking) => booking?._id)
       );
+      console.log(filteredData);
       setUserData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -84,23 +138,22 @@ const CourtRoomUsers = () => {
   };
 
   const handleFilter = () => {
+    setOpen(true);
     // Toggle sort order between ascending and descending
-    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
-    setSortOrder(newSortOrder);
-
-    // Sort userData based on the selected order
-    const sortedData = [...userData].sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
-      if (newSortOrder === "asc") {
-        return dateA - dateB;
-      } else {
-        return dateB - dateA;
-      }
-    });
-
-    // Update the user data with the sorted data
-    setUserData(sortedData);
+    // const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    // setSortOrder(newSortOrder);
+    // // Sort userData based on the selected order
+    // const sortedData = [...userData].sort((a, b) => {
+    //   const dateA = new Date(a.date);
+    //   const dateB = new Date(b.date);
+    //   if (newSortOrder === "asc") {
+    //     return dateA - dateB;
+    //   } else {
+    //     return dateB - dateA;
+    //   }
+    // });
+    // // Update the user data with the sorted data
+    // setUserData(sortedData);
   };
 
   const handleChange = (event) => {
@@ -133,6 +186,10 @@ const CourtRoomUsers = () => {
     setDeleteUserIds({ userId, bookingId });
     setUserToDelete(user);
     setDeleteDialog(true);
+  };
+  const handleRecordChange = (event, newValue) => {
+    console.log(newValue);
+    setRecord(event.target.value);
   };
 
   const confirmDeleteUser = async (user) => {
@@ -305,6 +362,36 @@ const CourtRoomUsers = () => {
                 </div>
                 <div className="font-semibold">Add User</div>
               </button>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                className="text-white"
+                label="SORT"
+                value={sortValue}
+                displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+                placeholder="asdsa"
+                onChange={handleSortChange}
+                style={{
+                  backgroundColor: "transparent", // Transparent background
+                  border: "2px solid #38b2ac", // Teal border
+                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)", // Shadow with black color
+                  borderRadius: "0.375rem", // Rounded corners (md size in Tailwind)
+                  color: "white", // White text
+                  padding: "0px 0px", // Padding for better appearance
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px", // Space between items (space-x-3 in Tailwind)
+                }}
+                IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
+              >
+                <MenuItem value={1}>Time High TO Low</MenuItem>
+                <MenuItem value={2}>Time Low TO High</MenuItem>
+                <MenuItem value={3}>Date Oldest</MenuItem>
+                <MenuItem value={4}>Date Latest</MenuItem>
+                {/* <MenuItem value={5}>Date Updated Oldest</MenuItem>
+                <MenuItem value={6}>Date Updated Latest</MenuItem> */}
+              </Select>
 
               <button
                 onClick={handleFilter}
@@ -389,135 +476,163 @@ const CourtRoomUsers = () => {
                     return false;
                   })
                   .flatMap((user) =>
-                    user?.courtroomBookings?.map((booking) => (
-                      <tr
-                        key={booking._id}
-                        className="hover:bg-black/50 transition-all duration-300 border-b border-white"
-                      >
-                        <td className="p-2">
-                          <input
-                            type="checkbox"
-                            onChange={(e) =>
-                              handleCheckboxChange(
-                                booking._id,
-                                e.target.checked
-                              )
-                            }
-                          />
-                        </td>
-
-                        <td className="p-2">
-                          {editingUserId === booking._id ? (
-                            <input
-                              type="date"
-                              name="date"
-                              value={editFormData.date}
-                              onChange={handleEditFormChange}
-                              className="bg-transparent border-b-2 border-white text-white focus:outline-none"
-                            />
-                          ) : (
-                            user.date
-                          )}
-                        </td>
-                        <td className="p-2">
-                          {editingUserId === booking._id ? (
-                            <select
-                              name="hour"
-                              value={editFormData.hour}
-                              onChange={handleEditFormChange}
-                              className="bg-neutral-800 rounded-md border-b-2 border-white text-white focus:outline-none"
-                            >
-                              <option value="">--Select hour--</option>
-                              {[...Array(24).keys()].map((hour) => (
-                                <option key={hour} value={hour}>
-                                  {hour}
-                                </option>
-                              ))}
-                            </select>
-                          ) : (
-                            user.hour
-                          )}
-                        </td>
-                        <td className="p-2">
-                          {editingUserId === booking._id ? (
-                            <input
-                              type="text"
-                              name="name"
-                              value={editFormData.name}
-                              onChange={handleEditFormChange}
-                              className="bg-transparent border-b-2 border-white text-white focus:outline-none"
-                            />
-                          ) : (
-                            booking.name
-                          )}
-                        </td>
-                        <td className="p-2">
-                          {editingUserId === booking._id ? (
-                            <input
-                              type="email"
-                              name="email"
-                              value={editFormData.email}
-                              onChange={handleEditFormChange}
-                              className="bg-transparent border-b-2 border-white text-white focus:outline-none"
-                            />
-                          ) : (
-                            booking.email
-                          )}
-                        </td>
-                        <td className="p-2">
-                          {editingUserId === booking._id ? (
-                            <input
-                              type="text"
-                              name="phoneNumber"
-                              value={editFormData.phoneNumber}
-                              onChange={handleEditFormChange}
-                              className="bg-transparent border-b-2 border-white text-white focus:outline-none"
-                            />
-                          ) : (
-                            booking.phoneNumber
-                          )}
-                        </td>
-                        <td className="p-2">
-                          {editingUserId === booking._id ? (
+                    user?.courtroomBookings?.map((booking) => {
+                      if (
+                        record != null &&
+                        record == 2 &&
+                        booking.recording == false
+                      ) {
+                        return;
+                      }
+                      if (
+                        startDate != null &&
+                        new Date(startDate) > new Date(user.date)
+                      ) {
+                        return;
+                      }
+                      if (
+                        endDate != null &&
+                        new Date(endDate) < new Date(user.date)
+                      ) {
+                        return;
+                      }
+                      if (
+                        record != null &&
+                        record == 1 &&
+                        booking.recording == true
+                      ) {
+                        return;
+                      }
+                      return (
+                        <tr
+                          key={booking._id}
+                          className="hover:bg-black/50 transition-all duration-300 border-b border-white"
+                        >
+                          <td className="p-2">
                             <input
                               type="checkbox"
-                              name="recording"
-                              checked={editFormData.recording}
-                              onChange={handleEditFormChange}
-                              className="focus:outline-none"
-                            />
-                          ) : booking.recording ? (
-                            "true"
-                          ) : (
-                            "false"
-                          )}
-                        </td>
-                        <td className="p-2">{booking._id}</td>
-                        <td className="p-2 cursor-pointer">
-                          {editingUserId === booking._id ? (
-                            <Check
-                              className="text-green-500 cursor-pointer"
-                              onClick={() =>
-                                handleEditConfirm(user?._id, booking._id)
+                              onChange={(e) =>
+                                handleCheckboxChange(
+                                  booking._id,
+                                  e.target.checked
+                                )
                               }
                             />
-                          ) : (
-                            <Edit
-                              className="text-yellow-400 cursor-pointer"
-                              onClick={() => handleEdit(booking, user)}
-                            />
-                          )}
-                        </td>
-                        <td
-                          className="p-2 cursor-pointer text-red-500"
-                          onClick={() =>
-                            handleDeleteUser(booking?._id, user?._id)
-                          }
-                        >
-                          <Delete />
-                        </td>
-                      </tr>
-                    ))
+                          </td>
+
+                          <td className="p-2">
+                            {editingUserId === booking._id ? (
+                              <input
+                                type="date"
+                                name="date"
+                                value={editFormData.date}
+                                onChange={handleEditFormChange}
+                                className="bg-transparent border-b-2 border-white text-white focus:outline-none"
+                              />
+                            ) : (
+                              user.date
+                            )}
+                          </td>
+                          <td className="p-2">
+                            {editingUserId === booking._id ? (
+                              <select
+                                name="hour"
+                                value={editFormData.hour}
+                                onChange={handleEditFormChange}
+                                className="bg-neutral-800 rounded-md border-b-2 border-white text-white focus:outline-none"
+                              >
+                                <option value="">--Select hour--</option>
+                                {[...Array(24).keys()].map((hour) => (
+                                  <option key={hour} value={hour}>
+                                    {hour}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              user.hour
+                            )}
+                          </td>
+                          <td className="p-2">
+                            {editingUserId === booking._id ? (
+                              <input
+                                type="text"
+                                name="name"
+                                value={editFormData.name}
+                                onChange={handleEditFormChange}
+                                className="bg-transparent border-b-2 border-white text-white focus:outline-none"
+                              />
+                            ) : (
+                              booking.name
+                            )}
+                          </td>
+                          <td className="p-2">
+                            {editingUserId === booking._id ? (
+                              <input
+                                type="email"
+                                name="email"
+                                value={editFormData.email}
+                                onChange={handleEditFormChange}
+                                className="bg-transparent border-b-2 border-white text-white focus:outline-none"
+                              />
+                            ) : (
+                              booking.email
+                            )}
+                          </td>
+                          <td className="p-2">
+                            {editingUserId === booking._id ? (
+                              <input
+                                type="text"
+                                name="phoneNumber"
+                                value={editFormData.phoneNumber}
+                                onChange={handleEditFormChange}
+                                className="bg-transparent border-b-2 border-white text-white focus:outline-none"
+                              />
+                            ) : (
+                              booking.phoneNumber
+                            )}
+                          </td>
+                          <td className="p-2">
+                            {editingUserId === booking._id ? (
+                              <input
+                                type="checkbox"
+                                name="recording"
+                                checked={editFormData.recording}
+                                onChange={handleEditFormChange}
+                                className="focus:outline-none"
+                              />
+                            ) : booking.recording ? (
+                              "true"
+                            ) : (
+                              "false"
+                            )}
+                          </td>
+                          <td className="p-2">{booking._id}</td>
+                          <td className="p-2 cursor-pointer">
+                            {editingUserId === booking._id ? (
+                              <Check
+                                className="text-green-500 cursor-pointer"
+                                onClick={() =>
+                                  handleEditConfirm(user?._id, booking._id)
+                                }
+                              />
+                            ) : (
+                              <Edit
+                                className="text-yellow-400 cursor-pointer"
+                                onClick={() => handleEdit(booking, user)}
+                              />
+                            )}
+                          </td>
+                          <td
+                            className="p-2 cursor-pointer text-red-500"
+                            onClick={() =>
+                              handleDeleteUser(booking?._id, user?._id)
+                            }
+                          >
+                            <Delete />
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
               </tbody>
             </table>
@@ -590,6 +705,65 @@ const CourtRoomUsers = () => {
           </div>
         )}
       </div>
+      <Modal
+        open={open}
+        onClose={handleCloseFilter}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <div className="flex flex-col">
+            <InputLabel id="demo-simple-select-label">Record</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={record}
+              label="planCode"
+              onChange={handleRecordChange}
+            >
+              <MenuItem value={0}>Both</MenuItem>
+              <MenuItem value={2}>True</MenuItem>
+              <MenuItem value={1}>False</MenuItem>
+            </Select>
+            <label
+              htmlFor="StartDate"
+              className="text-left self-start font-semibold"
+            >
+              Start Date
+            </label>
+            <input
+              id="StartDate"
+              type="date"
+              value={startDate || ""}
+              onChange={handleDateChange}
+              className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
+            />
+            <label
+              htmlFor="StartDate"
+              className="text-left self-start font-semibold"
+            >
+              End Date
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              value={endDate || ""}
+              onChange={handleEndDateChange}
+              className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
+            />
+            {/* <InputLabel id="demo-simple-select-label">
+              Search Case Tokens
+            </InputLabel>
+            <Slider
+              size="small"
+              value={tokenValue ? tokenValue : 0}
+              onChange={handleTokenValueChange}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+            /> */}
+          </div>
+        </Box>
+      </Modal>
     </section>
   );
 };

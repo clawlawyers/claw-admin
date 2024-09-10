@@ -5,10 +5,14 @@ import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import { Popover } from "@mui/material";
 import AddCoupon from "./components/AddCoupon";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
 
 import { getCoupons } from "./actions/Users.action";
 
 const CouponCode = () => {
+  const [sortValue, setSort] = useState("");
   const [userData, setUserData] = useState([]);
   const [anchorElExport, setAnchorElExport] = useState(null);
   const [anchorElAdd, setAnchorElAdd] = useState(null);
@@ -42,6 +46,31 @@ const CouponCode = () => {
   const handleClickAdd = (event) => {
     setAnchorElAdd(event.currentTarget);
     setCouponDialog(true);
+  };
+  const handleSortChange = (event) => {
+    setSort(event.target.value);
+    if (event.target.value == 1) {
+      const data = userData.sort((a, b) => b.discount - a.discount);
+      setUserData(data);
+    }
+    if (event.target.value == 2) {
+      const data = userData.sort((a, b) => a.discount - b.discount);
+      setUserData(data);
+    }
+    if (event.target.value == 3) {
+      const data = userData.sort(
+        (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+      );
+
+      setUserData(data);
+    }
+    if (event.target.value == 4) {
+      const data = userData.sort(
+        (a, b) => new Date(b.expirationDate) - new Date(a.expirationDate)
+      );
+
+      setUserData(data);
+    }
   };
 
   const handleCloseExport = () => {
@@ -138,6 +167,34 @@ const CouponCode = () => {
               >
                 Add Coupon Code
               </button>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                className="text-white"
+                label="SORT"
+                value={sortValue}
+                displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+                placeholder="asdsa"
+                onChange={handleSortChange}
+                style={{
+                  backgroundColor: "transparent", // Transparent background
+                  border: "2px solid #38b2ac", // Teal border
+                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)", // Shadow with black color
+                  borderRadius: "0.375rem", // Rounded corners (md size in Tailwind)
+                  color: "white", // White text
+                  padding: "0px 0px", // Padding for better appearance
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px", // Space between items (space-x-3 in Tailwind)
+                }}
+                IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
+              >
+                <MenuItem value={2}> Discounts Low-High</MenuItem>
+                <MenuItem value={1}>Discounts High-Low</MenuItem>
+                <MenuItem value={3}>Date Expire Oldest</MenuItem>
+                <MenuItem value={4}>Date Expire Latest</MenuItem>
+              </Select>
             </div>
             <input
               type="text"
