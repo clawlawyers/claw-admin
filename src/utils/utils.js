@@ -38,7 +38,7 @@ export const navbarMenus = [
   { id: 8, name: "Courtroom", link: "/admin/court-room" },
 
   { id: 9, name: "Custom Courtroom", link: "/admin/custom-courtroom" },
-  { id: 10, name: "Allowed Booking", link: "/admin/allowed-booking" },
+  // { id: 10, name: "Allowed Booking", link: "/admin/allowed-booking" },
   { id: 11, name: "Allowed Log in", link: "/admin/allowed-login" },
   { id: 12, name: "Add Ambassador", link: "/admin/add-ambasador" },
   { id: 13, name: "Salesman", link: "/admin/salesman" },

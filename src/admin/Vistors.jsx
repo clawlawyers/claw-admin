@@ -1,8 +1,10 @@
 import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
+import { getAllVisitors } from "./actions/Users.action";
+
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
 
@@ -125,6 +127,19 @@ const Visitor = () => {
   const handleClose = () => {
     setUserDialog(false);
   };
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getAllVisitors();
+      setUserData(res);
+      console.log(res);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handleCheckboxChange = (userId, isChecked) => {
     setSelectedUserIds((prevSelectedUserIds) => {

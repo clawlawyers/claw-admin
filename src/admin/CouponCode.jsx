@@ -8,8 +8,9 @@ import AddCoupon from "./components/AddCoupon";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
-
+import axios from "axios";
 import { getCoupons } from "./actions/Users.action";
+import { NODE_API_ENDPOINT } from "../utils/utils";
 
 const CouponCode = () => {
   const [sortValue, setSort] = useState("");
@@ -72,12 +73,33 @@ const CouponCode = () => {
       setUserData(data);
     }
   };
+  const handleDelete = async (id) => {
+    try {
+      const body = {
+        code: id,
+      };
+      console.log(id);
+      const response = await axios.delete(`${NODE_API_ENDPOINT}/admin/delete`, {
+        data: body,
+      });
+      if (response.status == 200) {
+        toast.success("deleted sucessfully");
+      } else {
+        toast.error("error occured");
+      }
+      fetchUserData();
+    } catch (e) {
+      toast.error("error occured");
+    }
+    setDeleteDialog(false);
+  };
 
   const handleCloseExport = () => {
     setAnchorElExport(null);
   };
 
   const handleCloseAdd = () => {
+    fetchUserData();
     setAnchorElAdd(null);
     setCouponDialog(false);
   };
@@ -135,8 +157,22 @@ const CouponCode = () => {
     setOriginalCouponData(null);
   };
 
-  const handleDeactivate = () => {
-    toast.success("Coupon deactivated successfully");
+  const handleDeactivate = async (id) => {
+    console.log(id);
+    try {
+      const body = {
+        code: id,
+      };
+      const response = await axios.post(
+        `${NODE_API_ENDPOINT}/admin/deactivate`,
+        {
+          data: body,
+        }
+      );
+      toast.success("Coupon deactivated successfully");
+    } catch (e) {
+      console.log(e);
+    }
     handleCloseExport();
   };
 
@@ -323,7 +359,10 @@ const CouponCode = () => {
                       </td>
                       <td className="p-2 text-left flex flex-row space-x-3">
                         <button
-                          onClick={handleClickExport}
+                          onClick={(e) => {
+                            handleClickExport(e);
+                            setCouponToDelete(coupon);
+                          }}
                           className="border border-teal-500 px-3 p-1 rounded-md"
                         >
                           Deactivate
@@ -379,7 +418,7 @@ const CouponCode = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={handleExport}
+                    onClick={() => handleDeactivate(couponToDelete._id)}
                     className="p-2 px-5 rounded-md bg-teal-600 text-white"
                   >
                     Deactivate
@@ -398,7 +437,7 @@ const CouponCode = () => {
               Are you sure you want to delete this coupon?
             </p>
             <p className="text-black/60 text-sm text-center">
-              Coupon Name: {couponToDelete?.couponCode}
+              Coupon Name: {couponToDelete?.code}
             </p>
             <div className="flex justify-center gap-2 mt-4">
               <button
@@ -408,7 +447,7 @@ const CouponCode = () => {
                 Cancel
               </button>
               <button
-                // onClick={() => handleDelete(couponToDelete?._id)}
+                onClick={() => handleDelete(couponToDelete?._id)}
                 className="px-4 py-2 bg-red-500 text-white rounded-md"
               >
                 Delete

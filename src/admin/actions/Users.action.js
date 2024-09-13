@@ -42,3 +42,11 @@ export const getCoupons = async () => {
     throw new Error(error.message);
   }
 };
+export const getAllVisitors = async () => {
+  try {
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/allVisitors`);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};

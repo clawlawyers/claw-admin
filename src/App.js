@@ -62,12 +62,12 @@ function App() {
           element: <CourtRoomUsers />,
           element: <CourtRoomUsers />,
         },
-        {
-          path: "/admin/allowed-booking",
-          path: "/admin/allowed-booking",
-          element: <AllowedBooking />,
-          element: <AllowedBooking />,
-        },
+        // {
+        //   path: "/admin/allowed-booking",
+        //   path: "/admin/allowed-booking",
+        //   element: <AllowedBooking />,
+        //   element: <AllowedBooking />,
+        // },
         {
           path: "/admin/allowed-login",
           path: "/admin/allowed-login",
