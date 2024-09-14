@@ -10,9 +10,12 @@ import AllowedLoginDialog from "./components/AllowedLoginDialog";
 import { getRefferalCodes } from "./actions/Users.action";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
+import axios from "axios";
+import { NODE_API_ENDPOINT } from "../utils/utils";
 
 const Referral = () => {
   const [sortValue, setSort] = useState("");
+
   const initialUserData = [
     {
       _id: "1",
@@ -96,6 +99,8 @@ const Referral = () => {
   const [originalUserData, setOriginalUserData] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedId, setselectediD] = useState(0);
+  const [anchorElAdd, setAnchorElAdd] = useState(null);
+  const [couponDialog, setCouponDialog] = useState(false);
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -162,8 +167,34 @@ const Referral = () => {
     setDeleteDialog(false);
     setUserToDelete(null);
   };
+  const handleCloseAdd = () => {
+    fetchUserData();
+    setAnchorElAdd(null);
+    setCouponDialog(false);
+  };
 
-  const confirmDelete = (user) => {
+  const confirmDelete = async (user) => {
+    try {
+      const response = await axios.delete(
+        `${NODE_API_ENDPOINT}/admin/referral-code`,
+        {
+          data: { id: user._id },
+        }
+      );
+
+      if (response.status === 200) {
+        // Handle success
+        console.log("Referral code deleted successfully:", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      // Handle error
+      console.error(
+        "Error deleting referral code:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
     setUserToDelete(user);
     setDeleteDialog(true);
   };
@@ -206,6 +237,10 @@ const Referral = () => {
       prevUserData.filter((user) => !selectedUserIds.includes(user._id))
     );
     setSelectedUserIds([]); // Clear selected user IDs after deletion
+  };
+  const handleClickAdd = (event) => {
+    setAnchorElAdd(event.currentTarget);
+    setCouponDialog(true);
   };
 
   const toggleEdit = (userId) => {
@@ -265,7 +300,6 @@ const Referral = () => {
                 </div>
                 <div className="font-semibold">Export</div>
               </button>
-
               <button
                 onClick={handleFilter}
                 className="bg-transparent border-2 border-teal-500 shadow-lg space-x-3 p-2 px-2 rounded-md shadow-black text-white flex items-center"
@@ -274,6 +308,13 @@ const Referral = () => {
                   <FilterAltIcon />
                 </div>
                 <div className="font-semibold">Filter</div>
+              </button>
+
+              <button
+                onClick={handleClickAdd}
+                className="p-2 bg-card-gradient border-2 border-white rounded-md"
+              >
+                Add Coupon Code
               </button>
               <Select
                 labelId="demo-simple-select-label"
@@ -370,38 +411,51 @@ const Referral = () => {
                 </tr>
               </thead>
               <tbody>
-                {userData.map((user, i) => (
-                  <tr
-                    key={user._id}
-                    className="border-b border-neutral-700 text-white"
-                  >
-                    <td className="p-2 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedUserIds.includes(user._id)}
-                        onChange={(e) =>
-                          handleCheckboxChange(user._id, e.target.checked)
-                        }
-                      />
-                    </td>
+                {userData
+                  .filter((val) => {
+                    if (searchTerm === "") {
+                      return val;
+                    } else if (
+                      val.referralCode
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())
+                    ) {
+                      return val;
+                    }
+                    return null;
+                  })
+                  .map((user, i) => (
+                    <tr
+                      key={user._id}
+                      className="border-b border-neutral-700 text-white"
+                    >
+                      <td className="p-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedUserIds.includes(user._id)}
+                          onChange={(e) =>
+                            handleCheckboxChange(user._id, e.target.checked)
+                          }
+                        />
+                      </td>
 
-                    <td className="p-2 text-center">{user.referralCode}</td>
-                    <td className="p-2 text-center">
-                      {user.redeemedBy.length}
-                    </td>
-                    <td className="p-2 text-center">{user.createdAt}</td>
-                    <td className="p-2 text-center">{user.updatedAt}</td>
-                    <td className="p-2 text-center">
-                      {user.generatedBy.firstName}
-                    </td>
-                    <td className="p-2 text-center">
-                      {user.generatedBy.lastName}
-                    </td>
-                    <td className="p-2 text-center">
-                      {user.generatedBy.phoneNumber}
-                    </td>
+                      <td className="p-2 text-center">{user.referralCode}</td>
+                      <td className="p-2 text-center">
+                        {user.redeemedBy.length}
+                      </td>
+                      <td className="p-2 text-center">{user.createdAt}</td>
+                      <td className="p-2 text-center">{user.updatedAt}</td>
+                      <td className="p-2 text-center">
+                        {user.generatedBy.firstName}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.generatedBy.lastName}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.generatedBy.phoneNumber}
+                      </td>
 
-                    {/* <td className="p-2 text-center">
+                      {/* <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
                           className="bg-black p-1 text-center w-20"
@@ -414,7 +468,7 @@ const Referral = () => {
                         user.plan
                       )}
                     </td> */}
-                    {/* <td className="p-2 text-center">
+                      {/* <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
                           className="bg-black p-1 text-center w-20"
@@ -431,7 +485,7 @@ const Referral = () => {
                         user.totalTokensUsed
                       )}
                     </td> */}
-                    {/*
+                      {/*
                     <td className="p-2 text-center">
                       {editableUserId === user._id ? (
                         <input
@@ -449,7 +503,7 @@ const Referral = () => {
                         user.totalTokensAvailable
                       )}
                     </td> */}
-                    {/* <td className="p-2 text-center">
+                      {/* <td className="p-2 text-center">
                         {editableUserId === user._id ? (
                           <input
                             className="bg-black p-1 text-center w-20"
@@ -467,26 +521,26 @@ const Referral = () => {
                         )}
                       </td> */}
 
-                    <td className="p-2 text-center">
-                      <button
-                        onClick={() => confirmDelete(user)}
-                        className="text-teal-500 rounded-md p-1"
-                      >
-                        <Delete />
-                      </button>
-                    </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => confirmDelete(user)}
+                          className="text-teal-500 rounded-md p-1"
+                        >
+                          <Delete />
+                        </button>
+                      </td>
 
-                    <td>
-                      <button
-                        aria-describedby={user._id}
-                        onClick={(e) => handleClick(e, i)}
-                        className="bg-[#0E5156] p-2 rounded-md text-xs"
-                      >
-                        All Redemption
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      <td>
+                        <button
+                          aria-describedby={user._id}
+                          onClick={(e) => handleClick(e, i)}
+                          className="bg-[#0E5156] p-2 rounded-md text-xs"
+                        >
+                          All Redemption
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
             <Popover
@@ -559,6 +613,28 @@ const Referral = () => {
           </div>
         </div>
       </div>
+      <Popover
+        id="addCoupon"
+        open={couponDialog}
+        anchorEl={null}
+        anchorOrigin={{
+          vertical: "center",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "center",
+          horizontal: "center",
+        }}
+        onClose={handleCloseAdd}
+        PaperProps={{
+          style: {
+            width: "400px",
+            borderRadius: "10px",
+          },
+        }}
+      >
+        {/* <AddCourtroom onClose={handleCloseAdd}></AddCourtroom> */}
+      </Popover>
     </section>
   );
 };

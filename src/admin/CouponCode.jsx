@@ -163,11 +163,11 @@ const CouponCode = () => {
       const body = {
         code: id,
       };
+
       const response = await axios.post(
         `${NODE_API_ENDPOINT}/admin/deactivate`,
-        {
-          data: body,
-        }
+
+        body
       );
       toast.success("Coupon deactivated successfully");
     } catch (e) {

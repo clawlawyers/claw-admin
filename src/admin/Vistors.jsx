@@ -82,7 +82,7 @@ const Visitor = () => {
     },
   ];
 
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [userAddDialog, setUserDialog] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -265,27 +265,30 @@ const Visitor = () => {
                       }
                     />
                   </th>
-                  <th className="p-2 text-left">Phone Number</th>
-                  <th className="p-2 text-left">Plan Name</th>
-                  <th className="p-2 text-left">Tokens Used</th>
-                  <th className="p-2 text-left">Created At</th>
+                  <th className="p-2 text-left">timestamp</th>
+                  <th className="p-2 text-left">userid</th>
+                  <th className="p-2 text-left">visitorid</th>
+                  {/* <th className="p-2 text-left">Created At</th>
                   <th className="p-2 text-left">Updated At</th>
-                  <th className="p-2 px-4 text-left">Actions</th>
+                  <th className="p-2 px-4 text-left">Actions</th> */}
                 </tr>
               </thead>
               <tbody>
                 {userData
-                  .filter((user) =>
-                    user.phoneNumber
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  )
-                  .filter((user) =>
-                    user.plan.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
+                  // .filter((user) =>
+                  //   user.phoneNumber
+                  //     .toLowerCase()
+                  //     .includes(searchTerm.toLowerCase())
+                  // )
+                  // .filter((user) =>
+                  //   user.plan.toLowerCase().includes(searchTerm.toLowerCase())
+                  // )
                   .map((user) => (
                     <tr key={user._id} className="  border-b ">
-                      <td className="p-2 text-left">
+                      <td className="p-2 text-left">{user.timestamp}</td>
+                      <td className="p-2 text-left">{user.userId}</td>
+                      <td className="p-2 text-left">{user.visitorId}</td>
+                      {/* <td className="p-2 text-left">
                         <input
                           type="checkbox"
                           className="text-center"
@@ -294,8 +297,8 @@ const Visitor = () => {
                             handleCheckboxChange(user._id, e.target.checked)
                           }
                         />
-                      </td>
-                      <td className="p-2 text-left">
+                      </td> */}
+                      {/* <td className="p-2 text-left">
                         {editableUserId === user._id ? (
                           <input
                             type="text"
@@ -406,7 +409,7 @@ const Visitor = () => {
                         >
                           <Delete />
                         </button>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
               </tbody>

@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { Button, Typography } from "@mui/material";
 import { Close } from "@mui/icons-material";
+import { UpdateCustomCourtroomUser } from "../actions/CustomCourtroom.action";
 
-const UserFeatureDialog = ({ userData, handleClose, selectedId }) => {
+const UserFeatureDialog = ({
+  userData,
+  handleClose,
+  selectedId,
+  setUserData,
+}) => {
   console.log(userData);
   console.log(selectedId);
 
@@ -19,19 +25,27 @@ const UserFeatureDialog = ({ userData, handleClose, selectedId }) => {
     { id: 10, name: "VoiceInput", enabled: false },
     // Add more features as needed
   ];
+  // var featuress = ["Ai Lawyer", "Ai Judge", "Evidences"];
 
   const [features, setFeatures] = useState(initialFeatures);
   const [editing, setEditing] = useState(false);
 
-  const toggleFeature = (id) => {
+  const toggleFeature = async (id) => {
+    // if (editing) {
+    //   setFeatures((prevFeatures) =>
+    //     prevFeatures.map((feature) =>
+    //       feature.id === id
+    //         ? { ...feature, enabled: !feature.enabled }
+    //         : feature
+    //     )
+    //   );
+    // }
     if (editing) {
-      setFeatures((prevFeatures) =>
-        prevFeatures.map((feature) =>
-          feature.id === id
-            ? { ...feature, enabled: !feature.enabled }
-            : feature
-        )
-      );
+      var data = userData;
+      console.log(data[selectedId].features[id]);
+      data[selectedId].features[id] = !data[selectedId].features[id];
+      setUserData(data);
+      const res = await UpdateCustomCourtroomUser(data[selectedId]);
     }
   };
 
