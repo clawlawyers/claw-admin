@@ -176,7 +176,7 @@ const Referral = () => {
   const confirmDelete = async (user) => {
     try {
       const response = await axios.delete(
-        `${NODE_API_ENDPOINT}/admin/referral-code`,
+        `https://claw-app-dev.onrender.com/api/v1/admin/referral-code`,
         {
           data: { id: user._id },
         }

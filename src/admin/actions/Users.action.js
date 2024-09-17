@@ -27,7 +27,9 @@ export const getRefferalCodes = async () => {
 };
 export const getVistors = async (param) => {
   try {
-    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/${param}`);
+    const res = await axios.get(
+      `https://claw-app-dev.onrender.com/api/v1/admin/${param}`
+    );
 
     return res.data;
   } catch (error) {
@@ -44,7 +46,9 @@ export const getCoupons = async () => {
 };
 export const getAllVisitors = async () => {
   try {
-    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/allVisitors`);
+    const res = await axios.get(
+      `https://claw-app-dev.onrender.com/api/v1/admin/allVisitors`
+    );
     return res.data;
   } catch (error) {
     throw new Error(error.message);

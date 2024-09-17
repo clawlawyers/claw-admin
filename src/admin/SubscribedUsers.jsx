@@ -91,9 +91,12 @@ const SubscribedUsers = () => {
     setUserData((prevUserData) =>
       prevUserData.filter((user) => user.mongoId !== userToDelete.mongoId)
     );
-    const res = await axios.delete(`${NODE_API_ENDPOINT}/admin/removeUser`, {
-      data: { id: userToDelete.mongoId },
-    });
+    const res = await axios.delete(
+      `https://claw-app-dev.onrender.com/api/v1/admin/removeUser`,
+      {
+        data: { id: userToDelete.mongoId },
+      }
+    );
     toast.success("User deleted successfully");
     setDeleteDialog(false);
     setUserToDelete(null);
