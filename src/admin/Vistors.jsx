@@ -248,23 +248,6 @@ const Visitor = () => {
             <table className="w-full table-auto text-sm">
               <thead>
                 <tr className=" text-white bg-teal-500">
-                  <th className="p-2 text-left">
-                    <input
-                      type="checkbox"
-                      className="text-center"
-                      checked={
-                        selectedUserIds.length === userData.length &&
-                        userData.length > 0
-                      }
-                      onChange={(e) =>
-                        setSelectedUserIds(
-                          e.target.checked
-                            ? userData.map((user) => user._id)
-                            : []
-                        )
-                      }
-                    />
-                  </th>
                   <th className="p-2 text-left">timestamp</th>
                   <th className="p-2 text-left">userid</th>
                   <th className="p-2 text-left">visitorid</th>

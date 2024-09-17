@@ -13,6 +13,8 @@ import Slider from "@mui/material/Slider";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
+import { NODE_API_ENDPOINT } from "../utils/utils";
+import axios from "axios";
 const SubscribedUsers = () => {
   const [sortValue, setSort] = useState("");
   const style = {
@@ -30,7 +32,7 @@ const SubscribedUsers = () => {
   // Dummy user data
   const initialUserData = [
     {
-      _id: "1",
+      mongoId: "1",
       phoneNumber: "1234567890",
       planName: "Premium",
       tokensUsed: "1000",
@@ -38,7 +40,7 @@ const SubscribedUsers = () => {
       updatedAt: "2023-08-25",
     },
     {
-      _id: "2",
+      mongoId: "2",
       phoneNumber: "0987654321",
       planName: "Basic",
       tokensUsed: "500",
@@ -87,7 +89,7 @@ const SubscribedUsers = () => {
 
   const handleDelete = () => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => user._id !== userToDelete._id)
+      prevUserData.filter((user) => user.mongoId !== userToDelete.mongoId)
     );
     toast.success("User deleted successfully");
     setDeleteDialog(false);
@@ -131,7 +133,7 @@ const SubscribedUsers = () => {
 
   const handleDeleteSelected = () => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => !selectedUserIds.includes(user._id))
+      prevUserData.filter((user) => !selectedUserIds.includes(user.mongoId))
     );
     setSelectedUserIds([]); // Clear selected user IDs after deletion
   };
@@ -142,7 +144,7 @@ const SubscribedUsers = () => {
       setOriginalUserData(null); // Clear original data
     } else {
       setEditableUserId(userId); // Start editing this row
-      const userToEdit = userData.find((user) => user._id === userId);
+      const userToEdit = userData.find((user) => user.mongoId === userId);
       setOriginalUserData({ ...userToEdit }); // Store original data
     }
   };
@@ -150,7 +152,7 @@ const SubscribedUsers = () => {
   const handleInputChange = (userId, field, value) => {
     setUserData((prevUserData) =>
       prevUserData.map((user) =>
-        user._id === userId ? { ...user, [field]: value } : user
+        user.mongoId === userId ? { ...user, [field]: value } : user
       )
     );
   };
@@ -195,7 +197,7 @@ const SubscribedUsers = () => {
     }
   };
 
-  const handleSave = (user) => {
+  const handleSave = async (user) => {
     // Check if data has changed
     const dataChanged =
       JSON.stringify(originalUserData) !== JSON.stringify(user);
@@ -203,6 +205,15 @@ const SubscribedUsers = () => {
     if (!dataChanged) {
       setEditableUserId(null); // Exit edit mode without API call
       return;
+    }
+    if (originalUserData.StateLocation != user.StateLocation) {
+      const res = await axios.patch(
+        `${NODE_API_ENDPOINT}/admin/updateUserLocation`,
+        {
+          id: user.mongoId,
+          location: user.StateLocation,
+        }
+      );
     }
 
     toast.success("User data updated successfully");
@@ -307,8 +318,14 @@ const SubscribedUsers = () => {
                   <th className="p-2">Case Search Tokens Used</th>
                   <th className="p-2">Created At</th>
                   <th className="p-2">Updated At</th>
-                  <th className="p-2">Edit</th>
-                  <th className="p-2">Delete</th>
+                  <th className="p-2">redeemedReferralCodeId</th>
+                  <th className="p-2">redeemedReferralCodeId</th>
+                  <th className="p-2">is case search</th>
+                  <th className="p-2">location</th>
+                  <th className="p-2">total token used</th>
+                  <th className="p-2">total gpt tokens</th>
+                  <th className="p-2">edit</th>
+                  <th className="p-2">delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -344,24 +361,30 @@ const SubscribedUsers = () => {
                       return;
                     }
                     return (
-                      <tr key={user._id} className="border-b border-teal-600">
+                      <tr
+                        key={user.mongoId}
+                        className="border-b border-teal-600"
+                      >
                         <td className="p-2 text-center">
                           <input
                             type="checkbox"
-                            checked={selectedUserIds.includes(user._id)}
+                            checked={selectedUserIds.includes(user.mongoId)}
                             onChange={(e) =>
-                              handleCheckboxChange(user._id, e.target.checked)
+                              handleCheckboxChange(
+                                user.mongoId,
+                                e.target.checked
+                              )
                             }
                           />
                         </td>
                         <td className="p-2 text-center">
-                          {editableUserId === user._id ? (
+                          {editableUserId === user.mongoId ? (
                             <input
                               type="text"
                               value={user.phoneNumber}
                               onChange={(e) =>
                                 handleInputChange(
-                                  user._id,
+                                  user.mongoId,
                                   "phoneNumber",
                                   e.target.value
                                 )
@@ -373,13 +396,13 @@ const SubscribedUsers = () => {
                           )}
                         </td>
                         <td className="p-2 text-center">
-                          {editableUserId === user._id ? (
+                          {editableUserId === user.mongoId ? (
                             <input
                               type="text"
                               value={user.planName}
                               onChange={(e) =>
                                 handleInputChange(
-                                  user._id,
+                                  user.mongoId,
                                   "planName",
                                   e.target.value
                                 )
@@ -391,13 +414,13 @@ const SubscribedUsers = () => {
                           )}
                         </td>
                         <td className="p-2 text-center">
-                          {editableUserId === user._id ? (
+                          {editableUserId === user.mongoId ? (
                             <input
                               type="text"
                               value={user.gptTokenUsed}
                               onChange={(e) =>
                                 handleInputChange(
-                                  user._id,
+                                  user.mongoId,
                                   "gptTokenUsed",
                                   e.target.value
                                 )
@@ -409,13 +432,13 @@ const SubscribedUsers = () => {
                           )}
                         </td>
                         <td className="p-2 text-center">
-                          {editableUserId === user._id ? (
+                          {editableUserId === user.mongoId ? (
                             <input
                               type="text"
                               value={user.tokenUsed}
                               onChange={(e) =>
                                 handleInputChange(
-                                  user._id,
+                                  user.mongoId,
                                   "tokensUsed",
                                   e.target.value
                                 )
@@ -429,21 +452,58 @@ const SubscribedUsers = () => {
                         <td className="p-2 text-center">{user.createdAt}</td>
                         <td className="p-2 text-center">{user.updatedAt}</td>
                         <td className="p-2 text-center">
+                          {user.redeemedReferralCodeId}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.numberOfSessions}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.isCasesearch ? "true" : "false"}
+                        </td>
+                        <td className="p-2 text-center">
+                          {editableUserId === user.mongoId ? (
+                            <input
+                              type="text"
+                              value={user.StateLocation}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  user.mongoId,
+                                  "StateLocation",
+                                  e.target.value
+                                )
+                              }
+                              className="border-2 border-gray-300 p-1 rounded-md w-full"
+                            />
+                          ) : (
+                            user.StateLocation
+                          )}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.totalTokenUsed}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.totalGptTokens}
+                        </td>
+                        <td className="p-2 text-center">
                           <button
                             onClick={() => {
-                              if (editableUserId === user._id) {
+                              if (editableUserId === user.mongoId) {
                                 handleSave(user); // Save and exit edit mode
                               } else {
-                                toggleEdit(user._id); // Enter edit mode
+                                toggleEdit(user.mongoId); // Enter edit mode
                               }
                             }}
                             className={` rounded-md p-1 ${
-                              editableUserId === user._id
+                              editableUserId === user.mongoId
                                 ? "text-teal-500"
                                 : "text-teal-500"
                             }`}
                           >
-                            {editableUserId === user._id ? <Save /> : <Edit />}
+                            {editableUserId === user.mongoId ? (
+                              <Save />
+                            ) : (
+                              <Edit />
+                            )}
                           </button>
                         </td>
                         <td className="p-2 text-center">

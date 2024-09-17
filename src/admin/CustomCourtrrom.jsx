@@ -143,6 +143,15 @@ const CustomCourtrrom = () => {
   };
 
   const handleInputChange = (userId, field, value) => {
+    if (field == "startDate" || field == "endDate") {
+      setUserData((prevUserData) =>
+        prevUserData.map((user) =>
+          user.userId === userId
+            ? { ...user, [field]: dayjs(value).format("YYYY-MM-DD") }
+            : user
+        )
+      );
+    }
     setUserData((prevUserData) =>
       prevUserData.map((user) =>
         user.userId === userId ? { ...user, [field]: value } : user
@@ -332,10 +341,10 @@ const CustomCourtrrom = () => {
                         />
                       </td>
                       <td className="p-2 ">
-                        {editableUserId === user._id ? (
+                        {editableUserId === user.userId ? (
                           <input
                             type="text"
-                            value={user._id}
+                            value={user.userId}
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
@@ -343,10 +352,10 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
-                          user._id
+                          user.userId
                         )}
                       </td>
                       <td className="p-2">
@@ -361,7 +370,7 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
                           user.name
@@ -379,7 +388,7 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
                           user.email
@@ -389,15 +398,15 @@ const CustomCourtrrom = () => {
                         {editableUserId === user.userId ? (
                           <input
                             type="text"
-                            value={user.domain}
+                            value={user.Domain}
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
-                                "domain",
+                                "Domain",
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white border-teal-500 outline-none"
                           />
                         ) : (
                           user.Domain
@@ -407,7 +416,7 @@ const CustomCourtrrom = () => {
                         {editableUserId === user.userId ? (
                           <input
                             type="date"
-                            value={user.startDate}
+                            value={dayjs(user.startDate).format("YYYY-MM-DD")}
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
@@ -415,7 +424,7 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
                           dayjs(user.startDate).format("YYYY-MM-DD")
@@ -425,7 +434,7 @@ const CustomCourtrrom = () => {
                         {editableUserId === user.userId ? (
                           <input
                             type="date"
-                            value={user.endDate}
+                            value={dayjs(user.endDate).format("YYYY-MM-DD")}
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
@@ -433,7 +442,7 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
                           dayjs(user.endDate).format("YYYY-MM-DD")
@@ -451,7 +460,7 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : user.recording ? (
                           "Yes"
@@ -471,7 +480,7 @@ const CustomCourtrrom = () => {
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
                           user.totalHours
@@ -485,11 +494,11 @@ const CustomCourtrrom = () => {
                             onChange={(e) =>
                               handleInputChange(
                                 user.userId,
-                                "usedTime",
+                                "totalUsedHours",
                                 e.target.value
                               )
                             }
-                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none"
+                            className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
                           (user.totalUsedHours * 60).toFixed(2) + "min"

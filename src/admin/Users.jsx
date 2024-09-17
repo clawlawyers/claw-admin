@@ -10,6 +10,8 @@ import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
 import { getAllUsers } from "./actions/Users.action";
 import dayjs from "dayjs";
+import { NODE_API_ENDPOINT } from "../utils/utils";
+import axios from "axios";
 
 const Users = () => {
   const [userData, setUserData] = useState([]);
@@ -31,7 +33,7 @@ const Users = () => {
   // Dummy user data
   const initialUserData = [
     {
-      _id: "1",
+      mongoId: "1",
       phoneNumber: "1234567890",
       plans: "Premium",
       tokenUsed: "1000",
@@ -44,7 +46,7 @@ const Users = () => {
       updatedAt: "2023-08-25",
     },
     {
-      _id: "2",
+      mongoId: "2",
       phoneNumber: "0987654321",
       plans: "Basic",
       tokenUsed: "500",
@@ -183,7 +185,7 @@ const Users = () => {
       setOriginalUserData(null); // Clear original data
     } else {
       setEditableUserId(userId); // Start editing this row
-      const userToEdit = userData.find((user) => user.userId === userId);
+      const userToEdit = userData.find((user) => user.mongoId === userId);
       setOriginalUserData({ ...userToEdit }); // Store original data
     }
   };
@@ -191,12 +193,12 @@ const Users = () => {
   const handleInputChange = (userId, field, value) => {
     setUserData((prevUserData) =>
       prevUserData.map((user) =>
-        user.userId === userId ? { ...user, [field]: value } : user
+        user.mongoId === userId ? { ...user, [field]: value } : user
       )
     );
   };
 
-  const handleSave = (user) => {
+  const handleSave = async (user) => {
     // Check if data has changed
     const dataChanged =
       JSON.stringify(originalUserData) !== JSON.stringify(user);
@@ -204,6 +206,15 @@ const Users = () => {
     if (!dataChanged) {
       setEditableUserId(null); // Exit edit mode without API call
       return;
+    }
+    if (originalUserData.StateLocation != user.StateLocation) {
+      const res = await axios.patch(
+        `${NODE_API_ENDPOINT}/admin/updateUserLocation`,
+        {
+          id: user.mongoId,
+          location: user.StateLocation,
+        }
+      );
     }
 
     toast.success("User data updated successfully");
@@ -322,34 +333,33 @@ const Users = () => {
                       return val;
                     } else if (
                       val.phoneNumber.includes(searchTerm) ||
-                      val.plans
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                      val.state.toLowerCase().includes(searchTerm.toLowerCase())
+                      val.StateLocation.toLowerCase().includes(
+                        searchTerm.toLowerCase()
+                      )
                     ) {
                       return val;
                     }
                     return null;
                   })
                   .map((user) => (
-                    <tr key={user._id} className="border-b border-teal-600">
+                    <tr key={user.mongoId} className="border-b border-teal-600">
                       <td className="p-2 text-center">
                         <input
                           type="checkbox"
-                          checked={selectedUserIds.includes(user._id)}
+                          checked={selectedUserIds.includes(user.mongoId)}
                           onChange={(e) =>
-                            handleCheckboxChange(user._id, e.target.checked)
+                            handleCheckboxChange(user.mongoId, e.target.checked)
                           }
                         />
                       </td>
                       <td className="p-2">
-                        {editableUserId === user._id ? (
+                        {editableUserId === user.mongoId ? (
                           <input
                             type="text"
                             value={user.phoneNumber}
                             onChange={(e) =>
                               handleInputChange(
-                                user._id,
+                                user.mongoId,
                                 "phoneNumber",
                                 e.target.value
                               )
@@ -362,13 +372,13 @@ const Users = () => {
                       </td>
                       <td className="p-2">{user.planNames.length}</td>
                       <td className="p-2 text-center">
-                        {editableUserId === user._id ? (
+                        {editableUserId === user.mongoId ? (
                           <input
                             type="text"
                             value={user.totalTokenUsed}
                             onChange={(e) =>
                               handleInputChange(
-                                user._id,
+                                user.mongoId,
                                 "totalTokenUsed",
                                 e.target.value
                               )
@@ -380,13 +390,13 @@ const Users = () => {
                         )}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user._id ? (
+                        {editableUserId === user.mongoId ? (
                           <input
                             type="text"
                             value={user.totalSessions}
                             onChange={(e) =>
                               handleInputChange(
-                                user._id,
+                                user.mongoId,
                                 "totalSessions",
                                 e.target.value
                               )
@@ -394,82 +404,34 @@ const Users = () => {
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
                         ) : (
-                          user.totalSessions
+                          user.numberOfSessions
                         )}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user._id ? (
-                          <select
+                        {editableUserId === user.mongoId ? (
+                          <input
                             value={user.StateLocation}
                             onChange={(e) =>
                               handleInputChange(
-                                user._id,
-                                "state",
+                                user.mongoId,
+                                "StateLocation",
                                 e.target.value
                               )
                             }
                             className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          >
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                          </select>
+                          ></input>
                         ) : (
                           user.StateLocation
                         )}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.engagementTime.daily}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "dailyEngagementTime",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          />
-                        ) : (
-                          user.engagementTime.daily
-                        )}
+                        {user.engagementTime.daily}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.engagementTime.monthly}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "monthlyEngagementTime",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          />
-                        ) : (
-                          user.engagementTime.monthly
-                        )}
+                        {user.engagementTime.monthly}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.engagementTime.total}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "totalEngagementTime",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          />
-                        ) : (
-                          user.engagementTime.total
-                        )}
+                        {user.engagementTime.total}
                       </td>
                       <td className="p-2 text-center">
                         {dayjs(user.createdAt).format("YYYY-MM-DD")}
@@ -479,10 +441,20 @@ const Users = () => {
                       </td>
                       <td className="p-2 text-center">
                         <button
-                          onClick={() => toggleEdit(user._id)}
+                          onClick={() => {
+                            if (editableUserId === user.mongoId) {
+                              handleSave(user); // Save and exit edit mode
+                            } else {
+                              toggleEdit(user.mongoId); // Enter edit mode
+                            }
+                          }}
                           className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
                         >
-                          {editableUserId === user._id ? <Save /> : <Edit />}
+                          {editableUserId === user.mongoId ? (
+                            <Save />
+                          ) : (
+                            <Edit />
+                          )}
                         </button>
                       </td>
                       <td className="p-2 text-center">
@@ -515,7 +487,7 @@ const Users = () => {
                   </button>
                   <button
                     onClick={() =>
-                      userToDelete ? handleDelete(userToDelete.userId) : null
+                      userToDelete ? handleDelete(userToDelete.mongoId) : null
                     }
                     className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
                   >
