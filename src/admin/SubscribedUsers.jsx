@@ -87,10 +87,13 @@ const SubscribedUsers = () => {
     fetchUserData();
   }, [fetchUserData]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setUserData((prevUserData) =>
       prevUserData.filter((user) => user.mongoId !== userToDelete.mongoId)
     );
+    const res = await axios.delete(`${NODE_API_ENDPOINT}/admin/removeUser`, {
+      data: { id: userToDelete.mongoId },
+    });
     toast.success("User deleted successfully");
     setDeleteDialog(false);
     setUserToDelete(null);

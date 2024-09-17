@@ -125,13 +125,19 @@ const Users = () => {
       setUserData(data);
     }
   };
-  const handleDelete = (userId) => {
-    setUserData((prevUserData) =>
-      prevUserData.filter((user) => user.userId !== userId)
-    );
-    toast.success("User deleted successfully");
-    setDeleteDialog(false);
-    setUserToDelete(null);
+  const handleDelete = async (userId) => {
+    try {
+      setUserData((prevUserData) =>
+        prevUserData.filter((user) => user.userId !== userId)
+      );
+      console.log(userId);
+      const res = await axios.delete(`${NODE_API_ENDPOINT}/admin/removeUser`, {
+        data: { id: userId },
+      });
+      toast.success("User deleted successfully");
+      setDeleteDialog(false);
+      setUserToDelete(null);
+    } catch (e) {}
   };
 
   const confirmDelete = (user) => {

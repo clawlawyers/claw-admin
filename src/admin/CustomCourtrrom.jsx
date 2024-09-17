@@ -17,6 +17,8 @@ import {
 } from "./actions/CustomCourtroom.action";
 import dayjs from "dayjs";
 import AddCourtroom from "./components/AddCourtroom";
+import { NODE_API_ENDPOINT } from "../utils/utils";
+import axios from "axios";
 
 const CustomCourtrrom = () => {
   const [userData, setUserData] = useState([]);
@@ -78,12 +80,12 @@ const CustomCourtrrom = () => {
 
   // Dummy data for testing
 
-  const handleDelete = async (userId) => {
+  const handleDelete = async (_id) => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => user.userId !== userId)
+      prevUserData.filter((user) => user._id !== _id)
     );
     const res = await DeleteCustomCourtroomUser({
-      data: { userId },
+      data: { _id },
     });
     toast.success("User deleted successfully");
     setDeleteDialog(false);
@@ -114,39 +116,39 @@ const CustomCourtrrom = () => {
     // Implement filtering logic here
   };
 
-  const handleCheckboxChange = (userId, isChecked) => {
+  const handleCheckboxChange = (_id, isChecked) => {
     setSelectedUserIds((prevSelectedUserIds) => {
       if (isChecked) {
-        return [...prevSelectedUserIds, userId];
+        return [...prevSelectedUserIds, _id];
       } else {
-        return prevSelectedUserIds.filter((id) => id !== userId);
+        return prevSelectedUserIds.filter((id) => id !== _id);
       }
     });
   };
 
   const handleDeleteSelected = () => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => !selectedUserIds.includes(user.userId))
+      prevUserData.filter((user) => !selectedUserIds.includes(user._id))
     );
     setSelectedUserIds([]); // Clear selected user IDs after deletion
   };
 
-  const toggleEdit = (userId) => {
-    if (editableUserId === userId) {
+  const toggleEdit = (_id) => {
+    if (editableUserId === _id) {
       setEditableUserId(null); // Stop editing if clicked again
       setOriginalUserData(null); // Clear original data
     } else {
-      setEditableUserId(userId); // Start editing this row
-      const userToEdit = userData.find((user) => user.userId === userId);
+      setEditableUserId(_id); // Start editing this row
+      const userToEdit = userData.find((user) => user._id === _id);
       setOriginalUserData({ ...userToEdit }); // Store original data
     }
   };
 
-  const handleInputChange = (userId, field, value) => {
+  const handleInputChange = (_id, field, value) => {
     if (field == "startDate" || field == "endDate") {
       setUserData((prevUserData) =>
         prevUserData.map((user) =>
-          user.userId === userId
+          user._id === _id
             ? { ...user, [field]: dayjs(value).format("YYYY-MM-DD") }
             : user
         )
@@ -154,14 +156,23 @@ const CustomCourtrrom = () => {
     }
     setUserData((prevUserData) =>
       prevUserData.map((user) =>
-        user.userId === userId ? { ...user, [field]: value } : user
+        user._id === _id ? { ...user, [field]: value } : user
       )
     );
   };
 
-  const handleSave = (user) => {
+  const handleSave = async (user) => {
+    if (user == originalUserData) {
+      setEditableUserId(null); // Exit edit mode
+      setOriginalUserData(null);
+      return; // Clear original data
+    }
+    const res = await axios.patch(
+      `${NODE_API_ENDPOINT}/admin/client/book-courtroom`,
+      { updatedData: user }
+    );
     setEditableUserId(null); // Exit edit mode
-    setOriginalUserData(null); // Clear original data
+    setOriginalUserData(null);
     toast.success("User data updated successfully");
   };
   const handleClickAdd = (event) => {
@@ -295,7 +306,7 @@ const CustomCourtrrom = () => {
               <thead>
                 <tr className="bg-teal-500">
                   <th className="p-2">Select</th>
-                  <th className="p-2">UserId</th>
+                  <th className="p-2">_id</th>
                   <th className="p-2">Name</th>
                   <th className="p-2">Email</th>
                   <th className="p-2">Domain</th>
@@ -330,42 +341,38 @@ const CustomCourtrrom = () => {
                     return null;
                   })
                   .map((user, i) => (
-                    <tr key={user.userId} className="border-b border-teal-600">
+                    <tr key={user._id} className="border-b border-teal-600">
                       <td className="p-2 text-center">
                         <input
                           type="checkbox"
-                          checked={selectedUserIds.includes(user.userId)}
+                          checked={selectedUserIds.includes(user._id)}
                           onChange={(e) =>
-                            handleCheckboxChange(user.userId, e.target.checked)
+                            handleCheckboxChange(user._id, e.target.checked)
                           }
                         />
                       </td>
                       <td className="p-2 ">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
-                            value={user.userId}
+                            value={user._id}
                             onChange={(e) =>
-                              handleInputChange(
-                                user.userId,
-                                "userId",
-                                e.target.value
-                              )
+                              handleInputChange(user._id, "_id", e.target.value)
                             }
                             className="w-full bg-transparent border-b-2 text-white  border-teal-500 outline-none"
                           />
                         ) : (
-                          user.userId
+                          user._id
                         )}
                       </td>
                       <td className="p-2">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
                             value={user.name}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "name",
                                 e.target.value
                               )
@@ -377,13 +384,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
                             value={user.email}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "email",
                                 e.target.value
                               )
@@ -395,13 +402,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
                             value={user.Domain}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "Domain",
                                 e.target.value
                               )
@@ -413,13 +420,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="date"
                             value={dayjs(user.startDate).format("YYYY-MM-DD")}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "startDate",
                                 e.target.value
                               )
@@ -431,13 +438,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="date"
                             value={dayjs(user.endDate).format("YYYY-MM-DD")}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "endDate",
                                 e.target.value
                               )
@@ -449,13 +456,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
                             value={user.recording}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "recording",
                                 e.target.value
                               )
@@ -469,13 +476,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
                             value={user.totalHours}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "totalHours",
                                 e.target.value
                               )
@@ -487,13 +494,13 @@ const CustomCourtrrom = () => {
                         )}
                       </td>
                       <td className="p-2 text-center">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <input
                             type="text"
                             value={user.totalUsedHours}
                             onChange={(e) =>
                               handleInputChange(
-                                user.userId,
+                                user._id,
                                 "totalUsedHours",
                                 e.target.value
                               )
@@ -514,12 +521,12 @@ const CustomCourtrrom = () => {
                         </button>
                       </td>
                       <td className="p-2 ">
-                        {editableUserId === user.userId ? (
+                        {editableUserId === user._id ? (
                           <button onClick={() => handleSave(user)}>
                             <CheckRounded className="text-teal-600 cursor-pointer" />
                           </button>
                         ) : (
-                          <button onClick={() => toggleEdit(user.userId)}>
+                          <button onClick={() => toggleEdit(user._id)}>
                             <Edit className="text-teal-600 cursor-pointer" />
                           </button>
                         )}
@@ -618,7 +625,7 @@ const CustomCourtrrom = () => {
                   <button
                     className="flex justify-center items-center px-4 p-2 text-center bg-white text-teal-700 border-2 border-white rounded font-bold"
                     onClick={() =>
-                      handleDelete(userToDelete._id, userToDelete.userId)
+                      handleDelete(userToDelete._id, userToDelete._id)
                     }
                   >
                     Confirm

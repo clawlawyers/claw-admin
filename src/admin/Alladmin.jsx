@@ -1,11 +1,12 @@
 import { Delete } from "@mui/icons-material";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import { Popover } from "@mui/material";
 import AddSalesman from "./components/AddSalesman";
 import AddAdmin from "./components/AddAdmin";
+import { getAlladminusers, add_admin } from "./actions/Admin.action";
 
 const AllAdmin = () => {
   // Dummy user data
@@ -23,12 +24,25 @@ const AllAdmin = () => {
     // Add more dummy data as needed
   ];
 
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState([]);
 
   const tableRef = useRef(null); // Reference for the table
   const [anchorEl, setAnchorEl] = useState(null); // Anchor element for Popover
+  const getAllUsers = async () => {
+    try {
+      const res = await getAlladminusers();
+      console.log(res);
+      setUserData(res.data.users);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
 
   const handleDelete = (userId) => {
     setUserData((prevUserData) =>
@@ -63,7 +77,9 @@ const AllAdmin = () => {
 
   const handleDeleteSelected = () => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => !selectedUserIds.includes(user.mobileNumber))
+      prevUserData.filter(
+        (user) => !selectedUserIds.includes(user.mobileNumber)
+      )
     );
     setSelectedUserIds([]); // Clear selected user IDs after deletion
   };
@@ -99,7 +115,7 @@ const AllAdmin = () => {
                 onClick={handleAddClick}
                 className="bg-card-gradient shadow-lg space-x-1 p-2 px-2 rounded-md shadow-black text-white flex items-center"
               >
-                <div className="font-semibold">Add Salesman</div>
+                <div className="font-semibold">Add Admin</div>
               </button>
             </div>
             <input
@@ -116,8 +132,8 @@ const AllAdmin = () => {
               <thead>
                 <tr className="bg-teal-500">
                   <th className="p-2">Mobile Number</th>
-                  <th className="p-2">Plan</th>
-                  <th className="p-2">Token Used</th>
+                  <th className="p-2">Name</th>
+
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -128,7 +144,9 @@ const AllAdmin = () => {
                       return val;
                     } else if (
                       val.mobileNumber.includes(searchTerm) ||
-                      val.plan.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      val.plan
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
                       val.tokenUsed.includes(searchTerm)
                     ) {
                       return val;
@@ -136,10 +154,13 @@ const AllAdmin = () => {
                     return null;
                   })
                   .map((user) => (
-                    <tr key={user.mobileNumber} className="border-b border-teal-600">
-                      <td className="p-2 text-center">{user.mobileNumber}</td>
-                      <td className="p-2 text-center">{user.plan}</td>
-                      <td className="p-2 text-center">{user.tokenUsed}</td>
+                    <tr
+                      key={user.mobileNumber}
+                      className="border-b border-teal-600"
+                    >
+                      <td className="p-2 text-center">{user.phoneNumber}</td>
+                      <td className="p-2 text-center">{user.name}</td>
+{/* 
                       <td className="p-2 text-center">
                         <button
                           onClick={() => confirmDelete(user)}
@@ -147,7 +168,7 @@ const AllAdmin = () => {
                         >
                           <Delete className="mr-2" />
                         </button>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
               </tbody>
