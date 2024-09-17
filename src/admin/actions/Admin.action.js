@@ -3,7 +3,9 @@ import { NODE_API_ENDPOINT } from "../../utils/utils";
 
 export const getAlladminusers = async () => {
   try {
-    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/getAllUsers`);
+    const res = await axios.get(
+      `https://claw-app-dev.onrender.com/api/v1/admin/getAllUsers`
+    );
     return res.data;
   } catch (error) {
     throw new Error(error.message);

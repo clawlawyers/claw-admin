@@ -143,11 +143,8 @@ const AllAdmin = () => {
                     if (searchTerm === "") {
                       return val;
                     } else if (
-                      val.mobileNumber.includes(searchTerm) ||
-                      val.plan
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                      val.tokenUsed.includes(searchTerm)
+                      val?.phoneNumber.includes(searchTerm) |
+                      val?.name.includes(searchTerm)
                     ) {
                       return val;
                     }
@@ -155,12 +152,12 @@ const AllAdmin = () => {
                   })
                   .map((user) => (
                     <tr
-                      key={user.mobileNumber}
+                      key={user.phoneNumber}
                       className="border-b border-teal-600"
                     >
                       <td className="p-2 text-center">{user.phoneNumber}</td>
                       <td className="p-2 text-center">{user.name}</td>
-{/* 
+                      {/* 
                       <td className="p-2 text-center">
                         <button
                           onClick={() => confirmDelete(user)}
