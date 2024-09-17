@@ -43,6 +43,7 @@ export const navbarMenus = [
   { id: 12, name: "Add Ambassador", link: "/admin/add-ambasador" },
   { id: 13, name: "Salesman", link: "/admin/salesman" },
   { id: 14, name: "All Admins", link: "/admin/all-admins" },
+  { id: 15, name: "Trial Coupuns", link: "/admin/trail-coupouns" },
 ];
 
 export default navbarMenus;

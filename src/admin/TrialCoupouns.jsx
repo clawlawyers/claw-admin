@@ -45,7 +45,7 @@ const TrialCourtroomCoupon = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `${NODE_API_ENDPOINT}/admin/trial-coupon`,
+        `https://claw-app-dev.onrender.com/api/v1/admin/trial-coupon`,
         {
           data: { id: id },
         }
@@ -168,94 +168,107 @@ const TrialCourtroomCoupon = () => {
               </tr>
             </thead>
             <tbody>
-              {couponData.map((coupon) => (
-                <tr key={coupon._id} className="border-b">
-                  <td className="p-2">
-                    {editableCouponId === coupon._id ? (
-                      <input
-                        type="text"
-                        value={coupon.CouponCode}
-                        onChange={(e) =>
-                          handleInputChange(
-                            coupon._id,
-                            "CouponCode",
-                            e.target.value
-                          )
-                        }
-                        className="border-2 border-gray-300 rounded-lg p-1"
-                      />
-                    ) : (
-                      coupon.CouponCode
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {editableCouponId === coupon._id ? (
-                      <input
-                        type="number"
-                        value={coupon.totalSlots}
-                        onChange={(e) =>
-                          handleInputChange(
-                            coupon._id,
-                            "totalSlots",
-                            e.target.value
-                          )
-                        }
-                        className="border-2 border-gray-300 rounded-lg p-1"
-                      />
-                    ) : (
-                      coupon.totalSlots
-                    )}
-                  </td>
-                  <td className="p-2">{coupon.bookedSlots}</td>
-                  <td className="p-2">
-                    {editableCouponId === coupon._id ? (
-                      <input
-                        type="date"
-                        value={coupon.StartDate}
-                        onChange={(e) =>
-                          handleInputChange(
-                            coupon._id,
-                            "StartDate",
-                            e.target.value
-                          )
-                        }
-                        className="border-2 border-gray-300 rounded-lg p-1"
-                      />
-                    ) : (
-                      coupon.StartDate
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {editableCouponId === coupon._id ? (
-                      <input
-                        type="date"
-                        value={coupon.EndDate}
-                        onChange={(e) =>
-                          handleInputChange(
-                            coupon._id,
-                            "EndDate",
-                            e.target.value
-                          )
-                        }
-                        className="border-2 border-gray-300 rounded-lg p-1"
-                      />
-                    ) : (
-                      coupon.EndDate
-                    )}
-                  </td>
-                  <td className="p-2">
-                    <button
-                      onClick={() => {
-                        setDeleteDialog(true);
-                        setCouponToDelete(coupon);
-                      }}
-                      className="border border-teal-500 px-3 p-1 rounded-md"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {couponData
+                .filter((val) => {
+                  if (searchTerm === "") {
+                    return val;
+                  } else if (
+                    val.CouponCode.toLowerCase().includes(
+                      searchTerm.toLowerCase()
+                    )
+                  ) {
+                    return val;
+                  }
+                  return null;
+                })
+                .map((coupon) => (
+                  <tr key={coupon._id} className="border-b">
+                    <td className="p-2">
+                      {editableCouponId === coupon._id ? (
+                        <input
+                          type="text"
+                          value={coupon.CouponCode}
+                          onChange={(e) =>
+                            handleInputChange(
+                              coupon._id,
+                              "CouponCode",
+                              e.target.value
+                            )
+                          }
+                          className="border-2 border-gray-300 rounded-lg p-1"
+                        />
+                      ) : (
+                        coupon.CouponCode
+                      )}
+                    </td>
+                    <td className="p-2">
+                      {editableCouponId === coupon._id ? (
+                        <input
+                          type="number"
+                          value={coupon.totalSlots}
+                          onChange={(e) =>
+                            handleInputChange(
+                              coupon._id,
+                              "totalSlots",
+                              e.target.value
+                            )
+                          }
+                          className="border-2 border-gray-300 rounded-lg p-1"
+                        />
+                      ) : (
+                        coupon.totalSlots
+                      )}
+                    </td>
+                    <td className="p-2">{coupon.bookedSlots}</td>
+                    <td className="p-2">
+                      {editableCouponId === coupon._id ? (
+                        <input
+                          type="date"
+                          value={coupon.StartDate}
+                          onChange={(e) =>
+                            handleInputChange(
+                              coupon._id,
+                              "StartDate",
+                              e.target.value
+                            )
+                          }
+                          className="border-2 border-gray-300 rounded-lg p-1"
+                        />
+                      ) : (
+                        coupon.StartDate
+                      )}
+                    </td>
+                    <td className="p-2">
+                      {editableCouponId === coupon._id ? (
+                        <input
+                          type="date"
+                          value={coupon.EndDate}
+                          onChange={(e) =>
+                            handleInputChange(
+                              coupon._id,
+                              "EndDate",
+                              e.target.value
+                            )
+                          }
+                          className="border-2 border-gray-300 rounded-lg p-1"
+                        />
+                      ) : (
+                        coupon.EndDate
+                      )}
+                    </td>
+                    <td className="p-2">
+                      <button
+                        onClick={() => {
+                          setDeleteDialog(true);
+                          setCouponToDelete(coupon);
+                        }}
+                        className="border border-teal-500 px-3 p-1 rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
