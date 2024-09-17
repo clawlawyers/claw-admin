@@ -27,6 +27,7 @@ import Salesman from "./admin/Salesman";
 import SalesmanDetails from "./admin/SalesmanDetails";
 import AllAdmin from "./admin/Alladmin";
 import ProductBasedVisit from "./admin/ProductBasedVisit";
+import TrialCourtroomCoupon from "./admin/TrialCoupouns";
 
 function App() {
   useEffect(() => {
@@ -115,6 +116,10 @@ function App() {
         {
           path: "/admin/all-admins",
           element: <AllAdmin />,
+        },
+        {
+          path: "/admin/trail-coupouns",
+          element: <TrialCourtroomCoupon />,
         },
         {
           path: "/admin/productbasedvisit",
