@@ -12,6 +12,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import axios from "axios";
 import { NODE_API_ENDPOINT } from "../utils/utils";
+import GenerateReferralCode from "./components/AddReferalCode";
 
 const Referral = () => {
   const [sortValue, setSort] = useState("");
@@ -633,7 +634,7 @@ const Referral = () => {
           },
         }}
       >
-        {/* <AddCourtroom onClose={handleCloseAdd}></AddCourtroom> */}
+        <GenerateReferralCode  onClose={handleCloseAdd}></GenerateReferralCode>
       </Popover>
     </section>
   );
