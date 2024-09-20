@@ -10,9 +10,9 @@ export const retrieveUserslist = createAsyncThunk(
       method: "GET",
     });
     const parsedProps = await props.json();
-    console.log(parsedProps.data.adminNumbers);
+    const users = parsedProps.data.users.map((i) => i.phoneNumber);
     return {
-      adminUsers: [...parsedProps.data.adminNumbers],
+      adminUsers: [...users],
     };
   }
 );
