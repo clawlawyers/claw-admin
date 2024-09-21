@@ -176,18 +176,21 @@ const Referral = () => {
 
   const confirmDelete = async (user) => {
     try {
-      const response = await axios.delete(
-        `https://claw-app-dev.onrender.com/api/v1/admin/referral-code`,
-        {
-          data: { id: user._id },
-        }
-      );
-
-      if (response.status === 200) {
-        // Handle success
-        console.log("Referral code deleted successfully:", response.data);
-        return response.data;
-      }
+      // const response = await axios.delete(
+      //   `${NODE_API_ENDPOINT}/admin/referralcode/`,
+      //   {
+      //     params: {
+      //       mongoId: user.id,
+      //     },
+      //   }
+      // );
+      // if (response.status === 200) {
+      //   // Handle success
+      //   console.log("Referral code deleted successfully:", response.data);
+      //   return response.data;
+      // }
+      // console.log(user);
+      // console.log(user.id);
     } catch (error) {
       // Handle error
       console.error(
@@ -634,7 +637,7 @@ const Referral = () => {
           },
         }}
       >
-        <GenerateReferralCode  onClose={handleCloseAdd}></GenerateReferralCode>
+        <GenerateReferralCode onClose={handleCloseAdd}></GenerateReferralCode>
       </Popover>
     </section>
   );
