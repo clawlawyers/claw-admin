@@ -32,11 +32,17 @@ const GenerateReferralCode = () => {
         body: JSON.stringify(client),
       });
 
-      if (response.status === 200) {
-        const { referralCode, message } = response.data;
-        setReferralCode(referralCode);
-        setMessage(message || "Referral code generated successfully!");
+      if (!response.ok) {
+        throw new Error("Failed to generate referral code. Please try again.");
       }
+
+      // const { referralCode, message } = response.data;
+
+      const resp = await response.json();
+
+      console.log(resp);
+      setReferralCode(referralCode);
+      setMessage(message || "Referral code generated successfully!");
     } catch (error) {
       setError("Failed to generate referral code. Please try again.");
       console.error(error);

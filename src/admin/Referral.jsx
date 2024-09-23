@@ -162,7 +162,7 @@ const Referral = () => {
 
   const handleDelete = (userId) => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => user._id !== userId)
+      prevUserData.filter((user) => user.id !== userId)
     );
     toast.success("User deleted successfully");
     setDeleteDialog(false);
@@ -174,8 +174,31 @@ const Referral = () => {
     setCouponDialog(false);
   };
 
-  const confirmDelete = async (user) => {
+  const confirmDelete = async (userDelete) => {
     try {
+      console.log(userDelete);
+
+      const response = await fetch(
+        `${NODE_API_ENDPOINT}/admin/referralcode/${userDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete referral code");
+      }
+
+      const resp = await response.json();
+
+      toast.success(resp.message);
+      setUserData((prevUserData) =>
+        prevUserData.filter((user) => user.id !== userDelete.id)
+      );
+
       // const response = await axios.delete(
       //   `${NODE_API_ENDPOINT}/admin/referralcode/`,
       //   {
@@ -199,7 +222,7 @@ const Referral = () => {
       );
       throw error;
     }
-    setUserToDelete(user);
+    setUserToDelete(userDelete);
     setDeleteDialog(true);
   };
 
