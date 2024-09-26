@@ -341,7 +341,7 @@ const Referral = () => {
                 onClick={handleClickAdd}
                 className="p-2 bg-card-gradient border-2 border-white rounded-md"
               >
-                Add Coupon Code
+                Add Ambassador
               </button>
               <Select
                 labelId="demo-simple-select-label"

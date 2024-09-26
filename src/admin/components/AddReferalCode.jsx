@@ -7,6 +7,7 @@ const GenerateReferralCode = () => {
     phoneNumber: "",
     firstName: "",
     lastName: "",
+    email: "",
     collegeName: "",
   });
   const [referralCode, setReferralCode] = useState(null);
@@ -79,6 +80,14 @@ const GenerateReferralCode = () => {
         value={client.lastName}
         onChange={handleChange}
         placeholder="Enter Last Name"
+        className="p-2 rounded-md border border-gray-300"
+      />
+      <input
+        type="text"
+        name="email"
+        value={client.email}
+        onChange={handleChange}
+        placeholder="Enter email address"
         className="p-2 rounded-md border border-gray-300"
       />
       <input
