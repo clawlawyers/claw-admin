@@ -65,24 +65,60 @@ const Login = () => {
       return;
     }
 
-    // Example usage
-    clearRecaptchaChildren();
-
     console.log("sendOTP");
+    console.log(window.recaptchaVerifier);
 
-    const recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha", {
-      size: "invisible",
-      callback: (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-        console.log(response);
-      },
-      auth,
-    });
+    if (!window.recaptchaVerifier) {
+      console.log("recaptchaVerifier");
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha", {
+        size: "invisible",
+        callback: (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log(response);
+        },
+        auth,
+      });
+    }
 
-    signInWithPhoneNumber(auth, "+91" + phoneNumber, recaptchaVerifier)
+    signInWithPhoneNumber(auth, "+91" + phoneNumber, window.recaptchaVerifier)
       .then((confirmationResult) => {
         setVerificationId(confirmationResult.verificationId);
         alert("OTP sent!");
+        setOtpSent(true);
+      })
+      .catch((error) => {
+        alert("Error during OTP request");
+        console.error("Error during OTP request:", error);
+        setOtpSent(false);
+      });
+  };
+
+  const handleReSendOtp = async () => {
+    // Implement actual OTP sending logic here
+    if (!checkAdmin()) {
+      toast.error("You are not Admin!");
+      return;
+    }
+
+    console.log("sendOTP");
+    console.log(window.recaptchaVerifier);
+
+    if (!window.recaptchaVerifier) {
+      console.log("recaptchaVerifier");
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha", {
+        size: "invisible",
+        callback: (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log(response);
+        },
+        auth,
+      });
+    }
+
+    signInWithPhoneNumber(auth, "+91" + phoneNumber, window.recaptchaVerifier)
+      .then((confirmationResult) => {
+        setVerificationId(confirmationResult.verificationId);
+        alert("OTP Resent!");
         setOtpSent(true);
       })
       .catch((error) => {
@@ -156,7 +192,10 @@ const Login = () => {
 
         <div className="flex gap-5 flex-row justify-end w-full">
           {otpSent && (
-            <button className="bg-teal-500 border border-black text-white rounded-md p-2 px-7 mt-5">
+            <button
+              onClick={handleReSendOtp}
+              className="bg-teal-500 border border-black text-white rounded-md p-2 px-7 mt-5"
+            >
               Re-send OTP
             </button>
           )}
