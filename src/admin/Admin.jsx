@@ -435,11 +435,11 @@ const CourtRoomUsers = () => {
                   <th className="p-2">
                     <div className="flex flex-row items-center justify-start">
                       Date
-                      <ArrowDownward
+                      {/* <ArrowDownward
                         className={`text-sm transition-transform duration-200 ${
                           sortOrder === "desc" ? "rotate-180" : ""
                         }`}
-                      />
+                      /> */}
                     </div>
                   </th>
                   <th className="p-2">Time</th>
@@ -455,6 +455,11 @@ const CourtRoomUsers = () => {
               <tbody>
                 {userData
                   ?.filter((user) => {
+                    const oneMonthBefore = new Date();
+                    oneMonthBefore.setMonth(oneMonthBefore.getMonth() - 1);
+                    if (new Date(user.date) < oneMonthBefore) {
+                      return null;
+                    }
                     if (searchTerm === "" && filterDate === "") {
                       return true;
                     } else if (

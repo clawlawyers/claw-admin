@@ -17,8 +17,9 @@ export const add_admin = async (data) => {
       `${NODE_API_ENDPOINT}/admin/add-new-admin`,
       data
     );
-    return res.data;
+    return res;
   } catch (error) {
-    throw new Error(error.message);
+    console.log(error);
+    return error;
   }
 };
