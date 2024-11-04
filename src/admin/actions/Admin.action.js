@@ -23,3 +23,23 @@ export const add_admin = async (data) => {
     return error;
   }
 };
+
+
+export const getUserFeedback = async () => {
+  try {
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/feedback`);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Fetch user details by userId
+export const getUserDetails = async (userId) => {
+  try {
+    const res = await axios.get(`${NODE_API_ENDPOINT}/user/${userId}`);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
