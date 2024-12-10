@@ -14,6 +14,7 @@ import Dashboard from "./admin/Dashboard";
 import Users from "./admin/Users";
 import SubscribedUsers from "./admin/SubscribedUsers";
 import Referral from "./admin/Referral";
+import UsersFeedback from "./admin/UserFeedback";
 
 import Visitors from "./admin/Vistors";
 import CouponCode from "./admin/CouponCode";
@@ -28,6 +29,7 @@ import SalesmanDetails from "./admin/SalesmanDetails";
 import AllAdmin from "./admin/Alladmin";
 import ProductBasedVisit from "./admin/ProductBasedVisit";
 import TrialCourtroomCoupon from "./admin/TrialCoupouns";
+import { Feedback } from "@mui/icons-material";
 
 function App() {
   useEffect(() => {
@@ -63,12 +65,12 @@ function App() {
           element: <CourtRoomUsers />,
           element: <CourtRoomUsers />,
         },
-        // {
-        //   path: "/admin/allowed-booking",
-        //   path: "/admin/allowed-booking",
-        //   element: <AllowedBooking />,
-        //   element: <AllowedBooking />,
-        // },
+        {
+          path: "/admin/allowed-booking",
+          path: "/admin/allowed-booking",
+          element: <AllowedBooking />,
+          element: <AllowedBooking />,
+        },
         {
           path: "/admin/allowed-login",
           path: "/admin/allowed-login",
@@ -107,6 +109,7 @@ function App() {
           path: "/admin/salesman",
           element: <Salesman />,
         },
+        
         {
           path: "/admin/salesman/:id",
           path: "/admin/salesman/:id",
@@ -126,6 +129,10 @@ function App() {
           path: "/admin/productbasedvisit",
           element: <ProductBasedVisit />,
           element: <ProductBasedVisit />,
+        },
+        {
+          path: "/admin/user-feedback",
+          element: <UsersFeedback />,
         },
       ],
     },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +19,10 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [verificationId, setVerificationId] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(0);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(30);
+
   const [otpToken, setOtpToken] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
   const adminUsersNumber = useSelector(
@@ -66,6 +70,7 @@ const Login = () => {
       toast.error("You are not Admin!");
       return;
     }
+    setSendingOtp(1);
 
     try {
       const handleOTPsend = await fetch(`${OTP_ENDPOINT}/generateOTPmobile`, {
@@ -91,11 +96,15 @@ const Login = () => {
 
       toast.success("OTP sent successfully!");
       // alert("OTP sent!");
+      setSendingOtp(0);
+
+      setIsDisabled(true);
       setOtpSent(true);
     } catch (error) {
       toast.error("Failed to send OTP");
       // alert("Error during OTP request");
       console.error("Error during OTP request:", error);
+      setSendingOtp(0);
       setOtpSent(false);
     }
 
@@ -295,6 +304,22 @@ const Login = () => {
     }
   };
 
+  useEffect(() => {
+    let intervalId;
+    if (isDisabled && countdown > 0) {
+      intervalId = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+
+    if (countdown === 0) {
+      clearInterval(intervalId);
+      setIsDisabled(false);
+      setCountdown(30); // Reset countdown
+    }
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [isDisabled, countdown]);
   return (
     <main className="h-screen bg-[#303030] w-full flex flex-col rounded-lg items-center justify-between py-10">
       {/* Header */}
@@ -328,16 +353,22 @@ const Login = () => {
           {otpSent && (
             <button
               onClick={handleReSendOtp}
+              disabled={isDisabled}
               className="bg-teal-500 border border-black text-white rounded-md p-2 px-7 mt-5"
             >
-              Re-send OTP
+              {sendingOtp
+                ? "Sending..."
+                : isDisabled
+                ? `Wait ${countdown} seconds...`
+                : "Retry"}
             </button>
           )}
           <button
             onClick={otpSent ? handleVerifyOtp : handleSendOtp}
+            disabled={sendingOtp}
             className="bg-teal-500 border border-black text-white rounded-md p-2 px-7 mt-5"
           >
-            {!otpSent ? "Send OTP" : "Verify OTP"}
+            {sendingOtp ? "Sending..." : !otpSent ? "Send OTP" : "Verify OTP"}
           </button>
           <div id="recaptcha"></div>
         </div>

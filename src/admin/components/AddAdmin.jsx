@@ -1,19 +1,31 @@
 import { CloseRounded } from "@mui/icons-material";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { add_admin } from "../actions/Admin.action";
 
 const AddAdmin = ({ onClose }) => {
   const { register, handleSubmit } = useForm();
+  const [wronglength, setWrongLength] = useState("");
 
   const onSubmit = async (data) => {
-    if (data.mobileNumber.length < 1000000000) {
+    if (data.mobileNumber.length < 10) {
+      setWrongLength("mobile number must be 10 digits");
     } else {
       const res = await add_admin({
         phoneNumber: data.mobileNumber,
         name: data.name,
       });
+
+      if (res.status == 400) {
+        setWrongLength("number already exists");
+      }
+      if (res.status == 500) {
+        setWrongLength("error ocuured");
+      }
+      if (res.status == 200) {
+        setWrongLength("admin added");
+      }
     }
   };
   return (
@@ -49,6 +61,13 @@ const AddAdmin = ({ onClose }) => {
           Add Admin
         </button>
       </form>{" "}
+      <span
+        className={
+          wronglength == "admin added" ? "text-green-500" : "text-red-400"
+        }
+      >
+        {wronglength}
+      </span>
     </main>
   );
 };

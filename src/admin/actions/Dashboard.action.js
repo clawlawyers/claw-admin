@@ -1,14 +1,14 @@
 import axios from "axios";
 import { NODE_API_ENDPOINT } from "../../utils/utils";
 
-export const getTotalUsers = async  () => {
-    try {
-        const res = await axios.get(`${NODE_API_ENDPOINT}/admin/user`);
-        return res.data;
-    } catch (error) {
-        throw new Error(error.message);
-    }
-}
+export const getTotalUsers = async () => {
+  try {
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/user`);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 export const getTopUsers = async () => {
   try {
@@ -19,21 +19,29 @@ export const getTopUsers = async () => {
   }
 };
 export const getSubscribedUsers = async () => {
-    try {
-      const res = await axios.get(`${NODE_API_ENDPOINT}/admin/subscribed-user`);
-      return res.data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
+  try {
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/subscribed-user`);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
-  export const getRefferalCodes = async () => {
-    try {
-      const res = await axios.get(`${NODE_API_ENDPOINT}/admin/referralcode`);
-      return res.data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
-
-  
+export const getRefferalCodes = async () => {
+  try {
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/referralcode`);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+export const getUserDist = async () => {
+  try {
+    const res = await axios.get(
+      `${NODE_API_ENDPOINT}/admin/user-plan-distibution`
+    );
+    return res.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};

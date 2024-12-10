@@ -75,6 +75,7 @@ const AddCoupon = ({ onClose }) => {
             placeholder="Enter Coupon Name"
             onChange={(e) => setCode(e.target.value)}
           />
+          
         </div>
       </section>
       <section className="flex justify-end w-full">
