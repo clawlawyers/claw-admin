@@ -1,9 +1,10 @@
-import { Add, Delete, Edit, Share, Save } from "@mui/icons-material";
+import { Add, Delete, Edit, Share, Save, Cancel } from "@mui/icons-material";
 import React, { useCallback, useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import MenuItem from "@mui/material/MenuItem";
 
+import CancelIcon from '@mui/icons-material/Cancel';
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
@@ -70,6 +71,19 @@ const Users = () => {
 
   const [sortValue, setSort] = useState("");
   const [originalUserData, setOriginalUserData] = useState(null);
+  const [showUsageDialog, setShowUsageDialog] = useState(false);
+  const [showEntireSessionDialog, setShowEntireSessionDialog] = useState(false);
+  const [sessionUsageUser , setSessionUsageUser] = useState(null)
+  const [searchSession , setSearchSession] = useState("")
+  const [entireSessionId , setEntireSessionId] = useState("")
+  const [entireSessionData , setEntireSessionData] = useState([])
+  const [sessionUsageUserData , setSessionUsageUserData] = useState([
+    {
+      sessiondate:"",
+      sessionTime:"",
+      sessiontitle:"",
+    }
+  ])
 
   const handleSortChange = (event) => {
     setSort(event.target.value);
@@ -229,6 +243,28 @@ const Users = () => {
     setOriginalUserData(null); // Clear original data
   };
 
+  const handleOpenSessionDialog =async (mongoId)=>{
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/sessions/${mongoId}`)
+    console.log(res)
+    setSessionUsageUserData(res.data.data.SessionList)
+    setSessionUsageUser(mongoId)
+
+    
+    setShowUsageDialog(true)
+  }
+  const handleShowEntireSessionHistroy =async (id)=>{
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/sessionsHistory/${sessionUsageUser}/${id}`)
+    setEntireSessionData(res.data.data.sessionMessages.messages)
+    console.log(res)
+    setShowUsageDialog(false)
+    setShowEntireSessionDialog(true)
+    // set
+  }
+  const handleCloseDialog =()=>{
+    setShowEntireSessionDialog(false)
+    setShowUsageDialog(false)
+  }
+
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
       <div className="flex flex-col justify-center h-full w-full items-center ">
@@ -319,9 +355,9 @@ const Users = () => {
                 <tr className="bg-teal-500">
                   <th className="p-2">Select</th>
                   <th className="p-2">Phone No</th>
-                  <th className="p-2">Plans</th>
+                  {/* <th className="p-2">Plans</th>
                   <th className="p-2">Token Used</th>
-                  <th className="p-2">Total Sessions</th>
+                  <th className="p-2">Total Sessions</th> */}
                   <th className="p-2">State</th>
                   <th className="p-2">Daily Engagement Time</th>
                   <th className="p-2">Monthly Engagement Time</th>
@@ -330,6 +366,7 @@ const Users = () => {
                   <th className="p-2">Updated At</th>
                   <th className="p-2">Edit</th>
                   <th className="p-2">Delete</th>
+                  <th className="p-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -376,8 +413,8 @@ const Users = () => {
                           user.phoneNumber
                         )}
                       </td>
-                      <td className="p-2">{user.planNames.length}</td>
-                      <td className="p-2 text-center">
+                      {/* <td className="p-2">{user.planNames.length}</td> */}
+                      {/* <td className="p-2 text-center">
                         {editableUserId === user.mongoId ? (
                           <input
                             type="text"
@@ -394,8 +431,8 @@ const Users = () => {
                         ) : (
                           user.totalTokenUsed
                         )}
-                      </td>
-                      <td className="p-2 text-center">
+                      </td> */}
+                      {/* <td className="p-2 text-center">
                         {editableUserId === user.mongoId ? (
                           <input
                             type="text"
@@ -412,7 +449,7 @@ const Users = () => {
                         ) : (
                           user.numberOfSessions
                         )}
-                      </td>
+                      </td> */}
                       <td className="p-2 text-center">
                         {editableUserId === user.mongoId ? (
                           <input
@@ -471,6 +508,14 @@ const Users = () => {
                           <Delete />
                         </button>
                       </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={()=>handleOpenSessionDialog(user.mongoId)}
+                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
+                        >
+                          {/* <Delete /> */} Show Usage Histroy
+                        </button>
+                      </td>
                     </tr>
                   ))}
               </tbody>
@@ -482,7 +527,7 @@ const Users = () => {
               <div className="bg-card-gradient p-4 rounded-md shadow-lg">
                 <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
                 <p className="mb-4">
-                  Are you sure you want to delete the user? ?
+                  Are you sure you want to delete the user? 
                 </p>
                 <div className="flex justify-end space-x-4">
                   <button
@@ -500,6 +545,151 @@ const Users = () => {
                     Delete
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+          {showUsageDialog && (
+            <div className="fixed inset-0 flex justify-center items-center backdrop-blur-sm bg-black bg-opacity-50">
+              <div className="bg-teal-950 p-4 h-[80%] overflow-y-scroll  rounded-md shadow-lg">
+              <div className="flex flex-col gap-3">
+                 <div className="flex pb-2 border-b-2 gap-3 items-center justify-end">
+                  <button onClick={handleCloseDialog}>
+
+                  <CancelIcon></CancelIcon>
+                  </button>
+                  <input onChange={(e)=>setSearchSession(e.target.value)}
+                  value={searchSession}
+                          // onClick={handleShowEntireSessionHistroy}
+                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
+                        >
+                          {/* <Delete /> */} 
+                        </input>
+                
+                </div>
+                <table className="w-full overflow-y-scroll  table-auto  text-sm">
+                  <thead>
+                    <tr className=" text-white bg-teal-500">
+                      <th className="p-2">Session Date</th>
+                      <th className="p-2">Session Time</th>
+                      <th className="p-2">Session Title</th>
+                      <th className="p-2"></th>
+                  
+                      {/* <th className="p-2">Plan</th>
+                  <th className="p-2">Tokens Used</th>
+                  <th className="p-2">Total Tokens Available</th>
+                  <th className="p-2">Daily Engagement Time</th>
+                  <th className="p-2">Monthly Engagement Time</th>
+                  <th className="p-2">Yearly Engagement Time</th> */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* {userData.length > 0 &&
+                      userData[selectedId].redeemedBy.map((user, i) => (
+                        <tr
+                          key={i}
+                          className="border-b border-neutral-700 text-white"
+                        >
+                          <td className="p-2 text-center"> {user.firstName}</td>
+                          <td className="p-2 text-center">{user.lastName}</td>
+
+                          <td className="p-2 text-center">
+                            {user.phoneNumber}
+                          </td>
+                          <td className="p-2 text-center">
+                            {user.plan.planName}
+                          </td>
+                          <td className="p-2 text-center">
+                            {user.plan.token.total}
+                          </td>
+                          <td className="p-2 text-center">
+                            {user.plan.token.used}
+                          </td>
+                        </tr>
+                      ))} */}
+                      {sessionUsageUserData.filter((val) => {
+                    if (val.name.includes(searchSession) ) {
+                      return val}}).map((e,i)=>(
+                        <tr key={i}>
+                            <td>{e.updatedAt.split("T")[0]}</td>
+                      <td className="text-ellipsis">{String(e.name).substring(0,100)+"......"}</td>
+                      
+                      <td>{e.updatedAt.split("T")[1].split(".")[0]}</td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={()=>handleShowEntireSessionHistroy(e.id)}
+                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
+                        >
+                          {/* <Delete /> */} Show Entire Session Histroy
+                        </button>
+                      </td>
+                        </tr>
+                      ))}
+                     
+                  </tbody>
+                </table>
+              </div>
+              </div>
+            </div>
+          )}
+            {showEntireSessionDialog && (
+            <div className="fixed inset-0 flex justify-center items-center backdrop-blur-sm bg-black bg-opacity-50">
+              <div className="bg-teal-950 w-1/2 h-2/3 p-4 rounded-md shadow-lg">
+              <div className="flex flex-col gap-4  h-full   ">
+                <div className="flex pb-2 border-b-2 gap-3 items-center justify-end">
+                  <button onClick={handleCloseDialog}>
+
+                  <CancelIcon></CancelIcon>
+                  </button>
+                  <button
+                          onClick={()=>{
+                            setShowEntireSessionDialog(false)
+                            setShowUsageDialog(true)
+                          }}
+                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
+                        >
+                          {/* <Delete /> */} GO BACK
+                        </button>
+                  <button
+                          // onClick={handleShowEntireSessionHistroy}
+                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
+                        >
+                          {/* <Delete /> */} EXPORT SESSION
+                        </button>
+                </div>
+                <div className="flex overflow-y-scroll  flex-col gap-3">
+                  {entireSessionData.map((e,i)=>{
+                    if(i%2==0)
+                    {return(
+
+                      
+                      <div className="flex flex-col justify-end items-end gap-3">
+                      
+                      <div className="font-bold text-teal-600 text-lg">USER INPUT</div>
+                      <div className="w-[80%] text-justify    border-2 border-teal-600 rounded-lg px-3 py-2"> {e.text} </div>
+                      </div>
+                      )
+                    }
+                    else{
+                      return( <div className="flex flex-col justify-start items-start gap-3">
+
+                        <div className="font-bold text-teal-600 text-lg" >AI OUTPUT</div>
+                        <div className="w-[80%] rounded-lg px-3 py-2 bg-[#018585]"> {e.text} </div>
+                        </div>)
+                    }
+})}
+                  {/* <div className="flex flex-col justify-end items-end gap-3">
+
+                  <div className="font-bold text-teal-600 text-lg">USER INPUT</div>
+                  <div className="w-[80%] text-justify    border-2 border-teal-600 rounded-lg px-3 py-2"> Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. </div>
+                  </div>
+                  <div className="flex flex-col justify-start items-start gap-3">
+
+                  <div className="font-bold text-teal-600 text-lg" >AI OUTPUT</div>
+                  <div className="w-[80%] rounded-lg px-3 py-2 bg-[#018585]"> Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. </div>
+                  </div> */}
+                  </div>
+               
+              </div>
               </div>
             </div>
           )}
