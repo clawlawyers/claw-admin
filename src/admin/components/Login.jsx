@@ -10,7 +10,8 @@ import {
 } from "../../utils/firebase";
 import { NODE_API_ENDPOINT, OTP_ENDPOINT } from "../../utils/utils";
 import toast from "react-hot-toast";
-import { login } from "../features/loginSlice";
+import { login , retrieveAuth } from "../features/loginSlice";
+
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -28,6 +29,13 @@ const Login = () => {
   const adminUsersNumber = useSelector(
     (state) => state.adminUsersNumber.adminUsers
   );
+  // const auth = useSelector((state)=>state.adminAuthUser.user)
+  const user = localStorage.getItem("auth-courtroom-admin");
+  useEffect(()=>{
+    if (user) {
+      navigate("/admin/dashboard");
+    }
+    },[])
 
   const handlePhoneNumberChange = (e) => {
     setphoneNumber(e.target.value);
@@ -298,6 +306,7 @@ const Login = () => {
       console.log(parsedProps.data);
       dispatch(login({ user: parsedProps.data }));
       navigate("/admin/dashboard");
+      
     } catch (error) {
       toast.error("Error during login to admin");
       console.error("Error during login to admin:", error);
