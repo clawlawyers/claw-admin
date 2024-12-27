@@ -649,12 +649,11 @@ const Users = () => {
                         >
                           {/* <Delete /> */} GO BACK
                         </button>
-                  <button
-                          // onClick={handleShowEntireSessionHistroy}
+                  {/* <button
                             className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
-                        >
-                          {/* <Delete /> */} EXPORT SESSION
-                        </button>
+                        > */}
+                          {/* <Delete /> EXPORT SESSION */}
+                        {/* </button> */}
                 </div>
                 <div className="flex overflow-y-scroll  flex-col gap-3">
                   {entireSessionData.map((e,i)=>{
