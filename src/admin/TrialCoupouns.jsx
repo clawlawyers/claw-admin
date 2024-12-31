@@ -135,13 +135,22 @@ const TrialCourtroomCoupon = () => {
 
             <Select
               value={sortValue}
+              displayEmpty
               onChange={handleSortChange}
               className="text-white"
               style={{
-                backgroundColor: "transparent",
-                border: "2px solid #38b2ac",
+                backgroundColor: "transparent", // Transparent background
+                border: "2px solid #38b2ac", // Teal border
+                boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)", // Shadow with black color
+                borderRadius: "0.375rem", // Rounded corners (md size in Tailwind)
+                color: "white", // White text
+                padding: "0px 0px", // Padding for better appearance
+                display: "flex",
+                alignItems: "center",
+                gap: "12px", // Space between items (space-x-3 in Tailwind)
               }}
             >
+               <MenuItem value="" disabled>Sort</MenuItem>
               <MenuItem value="slots-low-high">Slots Low-High</MenuItem>
               <MenuItem value="slots-high-low">Slots High-Low</MenuItem>
             </Select>

@@ -226,6 +226,7 @@ const CouponCode = () => {
                 }}
                 IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
               >
+                 <MenuItem value="" disabled>Sort</MenuItem>
                 <MenuItem value={2}> Discounts Low-High</MenuItem>
                 <MenuItem value={1}>Discounts High-Low</MenuItem>
                 <MenuItem value={3}>Date Expire Oldest</MenuItem>

@@ -281,6 +281,7 @@ const CustomCourtrrom = () => {
               }}
               IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
             >
+               <MenuItem value="" disabled>Sort</MenuItem>
               <MenuItem value={2}> Total Hours Low-High</MenuItem>
               <MenuItem value={1}>Total Hours High-Low</MenuItem>
               <MenuItem value={3}>Date start Oldest</MenuItem>

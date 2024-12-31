@@ -279,6 +279,7 @@ const AllowedLogin = () => {
                 }}
                 IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
               >
+                 <MenuItem value="" disabled>Sort</MenuItem>
                 <MenuItem value={1}>Time High TO Low</MenuItem>
                 <MenuItem value={2}>Time Low TO High</MenuItem>
                 <MenuItem value={3}>Date Oldest</MenuItem>

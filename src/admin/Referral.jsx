@@ -327,7 +327,7 @@ const Referral = () => {
                 </div>
                 <div className="font-semibold">Export</div>
               </button>
-              <button
+              {/* <button
                 onClick={handleFilter}
                 className="bg-transparent border-2 border-teal-500 shadow-lg space-x-3 p-2 px-2 rounded-md shadow-black text-white flex items-center"
               >
@@ -335,7 +335,7 @@ const Referral = () => {
                   <FilterAltIcon />
                 </div>
                 <div className="font-semibold">Filter</div>
-              </button>
+              </button> */}
 
               <button
                 onClick={handleClickAdd}
@@ -347,6 +347,9 @@ const Referral = () => {
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 className="text-white"
+                
+                
+                
                 label="SORT"
                 value={sortValue}
                 displayEmpty
@@ -366,6 +369,7 @@ const Referral = () => {
                 }}
                 IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
               >
+                <MenuItem value="" disabled>Sort</MenuItem>
                 <MenuItem value={1}>Redemption High TO Low</MenuItem>
                 <MenuItem value={2}>Redemption Low TO High</MenuItem>
                 <MenuItem value={3}>Date Created Oldest</MenuItem>

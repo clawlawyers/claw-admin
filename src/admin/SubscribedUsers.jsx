@@ -278,6 +278,7 @@ const SubscribedUsers = () => {
                 }}
                 IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
               >
+                 <MenuItem value="" disabled>Sort</MenuItem>
                 <MenuItem value={1}>Sort On GPT tokens</MenuItem>
                 <MenuItem value={2}>Sort On Case Search Tokens</MenuItem>
                 <MenuItem value={3}>Date Created Oldest</MenuItem>
