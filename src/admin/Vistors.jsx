@@ -6,6 +6,12 @@ import { saveAs } from "file-saver";
 import { getAllVisitors } from "./actions/Users.action";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Modal from "@mui/material/Modal";
+import Slider from "@mui/material/Slider";
+
+import InputLabel from "@mui/material/InputLabel";
+
+import Box from "@mui/material/Box";
 
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
@@ -93,6 +99,32 @@ const Visitor = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [editableUserId, setEditableUserId] = useState(null);
   const [originalUserData, setOriginalUserData] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setendDate] = useState(null);
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+  const handleCloseFilter = () => setOpen(false);
+
+  const handleDateChange = (event) => {
+    setStartDate(event.target.value);
+    console.log(event.target.value); // Update state with the new date
+  };
+  const handleEndDateChange = (event) => {
+    setendDate(event.target.value);
+    console.log(event.target.value); // Update state with the new date
+  };
+  
 
   const handleDelete = (userId) => {
     setUserData((prevUserData) =>
@@ -125,6 +157,7 @@ const Visitor = () => {
 
   const handleFilter = () => {
     // Implement filtering logic here
+    setOpen(true);
   };
 
   const handleClose = () => {
@@ -206,6 +239,11 @@ const Visitor = () => {
     }
    
   };
+  const handleReset =()=>{
+    setStartDate(null)
+    setendDate(null)
+    
+  }
 
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
@@ -301,16 +339,28 @@ const Visitor = () => {
               </thead>
               <tbody>
                 {userData
-                  // .filter((user) =>
-                  //   user.phoneNumber
-                  //     .toLowerCase()
-                  //     .includes(searchTerm.toLowerCase())
-                  // )
-                  // .filter((user) =>
-                  //   user.plan.toLowerCase().includes(searchTerm.toLowerCase())
-                  // )
-                  .map((user) => (
-                    <tr key={user._id} className="  border-b ">
+                  .map((user,i) => {
+                    // if(i>10){
+                    //   return
+                    // }
+                    if (
+                      startDate != null &&
+                      new Date(startDate) > new Date(user.timestamp)
+                    ) {
+                      console.log(startDate);
+                      console.log(user.date);
+                      return null;
+                    }
+                    if (
+                      endDate != null &&
+                      new Date(endDate) < new Date(user.timestamp)
+                    ) {
+                      return;
+                    }
+                    return(
+
+                      
+                      <tr key={user._id} className="  border-b ">
                       <td className="p-2 text-left">{user.timestamp}</td>
                       <td className="p-2 text-left">{user.userId}</td>
                       <td className="p-2 text-left">{user.visitorId}</td>
@@ -334,7 +384,7 @@ const Visitor = () => {
                                 user._id,
                                 "phoneNumber",
                                 e.target.value
-                              )
+                                )
                             }
                             className="border-2 border-gray-300 rounded-lg p-1"
                           />
@@ -370,7 +420,7 @@ const Visitor = () => {
                                 user._id,
                                 "totalTokensUsed",
                                 e.target.value
-                              )
+                                )
                             }
                             className="border-2 border-gray-300 rounded-lg p-1"
                           />
@@ -437,7 +487,8 @@ const Visitor = () => {
                         </button>
                       </td> */}
                     </tr>
-                  ))}
+)
+})}
               </tbody>
             </table>
           </div>
@@ -467,6 +518,57 @@ const Visitor = () => {
           </div>
         </div>
       )}
+      <Modal
+        open={open}
+        onClose={handleCloseFilter}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <div className="flex flex-col">
+           
+            <label
+              htmlFor="StartDate"
+              className="text-left self-start font-semibold"
+            >
+              Start Date
+            </label>
+            <input
+              id="StartDate"
+              type="date"
+              value={startDate || ""}
+              onChange={handleDateChange}
+              className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
+            />
+            <label
+              htmlFor="endDate"
+              className="text-left self-start font-semibold"
+            >
+              End Date
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              value={endDate || ""}
+              onChange={handleEndDateChange}
+              className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
+            />
+              <button onClick={handleReset} className="w-full bg-teal-700 px-4 py-2 rounded-md text-white">
+              RESET
+            </button>
+            {/* <InputLabel id="demo-simple-select-label">
+              Search Case Tokens
+            </InputLabel>
+            <Slider
+              size="small"
+              value={tokenValue ? tokenValue : 0}
+              onChange={handleTokenValueChange}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+            /> */}
+          </div>
+        </Box>
+      </Modal>
     </section>
   );
 };
