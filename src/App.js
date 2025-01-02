@@ -58,29 +58,26 @@ function App() {
         {
           path: "/admin/sub-users",
           element: <SubscribedUsers />,
-          element: <SubscribedUsers />,
+       
         },
         {
           path: "/admin/court-room",
           element: <CourtRoomUsers />,
-          element: <CourtRoomUsers />,
+          
         },
         {
           path: "/admin/allowed-booking",
-          path: "/admin/allowed-booking",
           element: <AllowedBooking />,
-          element: <AllowedBooking />,
+        
         },
         {
-          path: "/admin/allowed-login",
           path: "/admin/allowed-login",
           element: <AllowedLogin />,
         },
         {
           path: "/admin/custom-courtroom",
-          path: "/admin/custom-courtroom",
           element: <CustomCourtrrom />,
-          element: <CustomCourtrrom />,
+          
         },
         {
           path: "/admin/referral",
@@ -92,7 +89,6 @@ function App() {
         },
         {
           path: "/admin/coupon-code",
-          path: "/admin/coupon-code",
           element: <CouponCode />,
         },
         {
@@ -101,9 +97,8 @@ function App() {
         },
         {
           path: "/admin/add-ambasador",
-          path: "/admin/add-ambasador",
           element: <AddAmbasaddor />,
-          element: <AddAmbasaddor />,
+          
         },
         {
           path: "/admin/salesman",
@@ -112,9 +107,9 @@ function App() {
         
         {
           path: "/admin/salesman/:id",
-          path: "/admin/salesman/:id",
+          
           element: <SalesmanDetails />,
-          element: <SalesmanDetails />,
+          
         },
         {
           path: "/admin/all-admins",

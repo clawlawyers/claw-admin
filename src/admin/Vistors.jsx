@@ -4,6 +4,8 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import { getAllVisitors } from "./actions/Users.action";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import toast from "react-hot-toast";
 import AllowedLoginDialog from "./components/AllowedLoginDialog";
@@ -81,7 +83,8 @@ const Visitor = () => {
       updatedAt: "2023-08-21",
     },
   ];
-
+  
+  const [sortValue, setSort] = useState("");
   const [userData, setUserData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [userAddDialog, setUserDialog] = useState(false);
@@ -191,6 +194,18 @@ const Visitor = () => {
     setEditableUserId(null); // Exit edit mode
     setOriginalUserData(null); // Clear original data
   };
+  const handleSortChange = (event) => {
+    setSort(event.target.value);
+    if (event.target.value == 1) {
+      const data = userData.sort((a, b) =>new Date( b.timestamp) - new Date(a.timestamp));
+      setUserData(data);
+    }
+    if (event.target.value == 2) {
+      const data = userData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      setUserData(data);
+    }
+   
+  };
 
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
@@ -207,6 +222,34 @@ const Visitor = () => {
                 </div>
                 <div className="font-semibold">Export</div>
               </button>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                className="text-white"
+                label="SORT"
+                value={sortValue}
+                displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+                placeholder="asdsa"
+                onChange={handleSortChange}
+                style={{
+                  backgroundColor: "transparent", // Transparent background
+                  border: "2px solid #38b2ac", // Teal border
+                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)", // Shadow with black color
+                  borderRadius: "0.375rem", // Rounded corners (md size in Tailwind)
+                  color: "white", // White text
+                  padding: "0px 0px", // Padding for better appearance
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px", // Space between items (space-x-3 in Tailwind)
+                }}
+                IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
+              >
+                 <MenuItem value="" disabled>Sort</MenuItem>
+                <MenuItem value={1}>Time Latest</MenuItem>
+                <MenuItem value={2}>Time Oldest</MenuItem>
+          
+              </Select>
 
               <button
                 onClick={handleFilter}

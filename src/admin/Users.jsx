@@ -313,7 +313,7 @@ const Users = () => {
                 <MenuItem value={8}>engament Low-High</MenuItem>
                 <MenuItem value={7}>engament High-Low</MenuItem>
               </Select>
-
+{/* 
               <button
                 onClick={handleFilter}
                 className="bg-transparent border-2 border-teal-500 shadow-lg space-x-3 p-2 px-2 rounded-md shadow-black text-white flex items-center"
@@ -322,7 +322,7 @@ const Users = () => {
                   <FilterAltIcon />
                 </div>
                 <div className="font-semibold">Filter</div>
-              </button>
+              </button> */}
 
               <button
                 onClick={handleDeleteSelected}

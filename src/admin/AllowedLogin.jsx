@@ -230,6 +230,13 @@ const AllowedLogin = () => {
       setUserData(data);
     }
   };
+
+  const handleReset =()=>{
+    setStartDate(null)
+    setendDate(null)
+    setRecord(0)
+  }
+
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
       <div className="flex flex-col justify-center h-full w-full items-center ">
@@ -661,6 +668,9 @@ const AllowedLogin = () => {
               onChange={handleEndDateChange}
               className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
             />
+              <button onClick={handleReset} className="w-full bg-teal-700 px-4 py-2 rounded-md text-white">
+              RESET
+            </button>
             {/* <InputLabel id="demo-simple-select-label">
               Search Case Tokens
             </InputLabel>

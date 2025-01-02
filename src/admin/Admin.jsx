@@ -329,6 +329,12 @@ const CourtRoomUsers = () => {
       </div>
     );
   }
+  
+  const handleReset =()=>{
+      setStartDate(null)
+      setendDate(null)
+      setRecord(0)
+  }
 
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
@@ -767,6 +773,9 @@ const CourtRoomUsers = () => {
               aria-label="Small"
               valueLabelDisplay="auto"
             /> */}
+                <button onClick={handleReset} className="w-full bg-teal-700 px-4 py-2 rounded-md text-white">
+              RESET
+            </button>
           </div>
         </Box>
       </Modal>

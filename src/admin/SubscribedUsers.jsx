@@ -72,6 +72,7 @@ const SubscribedUsers = () => {
     console.log(newValue);
     setPlanCode(event.target.value);
   };
+  
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -228,6 +229,12 @@ const SubscribedUsers = () => {
     setOriginalUserData(null); // Clear original data
   };
 
+  const handleReset =()=>{
+    setPlanCode(null)
+    setTokenValue(null)
+    setgptTokenValue(null)
+  }
+
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
       <div className="flex flex-col justify-center h-full w-full items-center ">
@@ -321,16 +328,21 @@ const SubscribedUsers = () => {
                   <th className="p-2">Select</th>
                   <th className="p-2">Phone Number</th>
                   <th className="p-2">Plan Name</th>
-                  <th className="p-2">Gpt Tokens Used</th>
-                  <th className="p-2">Case Search Tokens Used</th>
+                  <th className="p-2">Price Paid</th>
+                  {/* <th className="p-2">Gpt Tokens Used</th>
+                  <th className="p-2">Case Search Tokens Used</th> */}
                   <th className="p-2">Created At</th>
                   <th className="p-2">Updated At</th>
-                  <th className="p-2">redeemedReferralCodeId</th>
-                  <th className="p-2">redeemedReferralCodeId</th>
+                  <th className="p-2">Subscritpion Id</th>
+                  <th className="p-2">Total Sessions</th>
+                  
+
+                  {/* <th className="p-2">redeemedReferralCodeId</th>
+                  <th className="p-2">redeemedReferralCodeId</th> */}
                   <th className="p-2">is case search</th>
                   <th className="p-2">location</th>
-                  <th className="p-2">total token used</th>
-                  <th className="p-2">total gpt tokens</th>
+                  {/* <th className="p-2">total token used</th>
+                  <th className="p-2">total gpt tokens</th> */}
                   <th className="p-2">edit</th>
                   <th className="p-2">delete</th>
                 </tr>
@@ -399,7 +411,7 @@ const SubscribedUsers = () => {
                               className="border-2 border-gray-300 p-1 rounded-md w-full"
                             />
                           ) : (
-                            user.phoneNumber
+                            user.user.phoneNumber
                           )}
                         </td>
                         <td className="p-2 text-center">
@@ -420,7 +432,8 @@ const SubscribedUsers = () => {
                             user.planName
                           )}
                         </td>
-                        <td className="p-2 text-center">
+                        <td className="p-2 text-center">{user.Paidprice}</td>
+                        {/* <td className="p-2 text-center">
                           {editableUserId === user.mongoId ? (
                             <input
                               type="text"
@@ -437,8 +450,8 @@ const SubscribedUsers = () => {
                           ) : (
                             user.gptTokenUsed
                           )}
-                        </td>
-                        <td className="p-2 text-center">
+                        </td> */}
+                        {/* <td className="p-2 text-center">
                           {editableUserId === user.mongoId ? (
                             <input
                               type="text"
@@ -455,14 +468,15 @@ const SubscribedUsers = () => {
                           ) : (
                             user.tokenUsed
                           )}
-                        </td>
+                        </td> */}
                         <td className="p-2 text-center">{user.createdAt}</td>
                         <td className="p-2 text-center">{user.updatedAt}</td>
-                        <td className="p-2 text-center">
+                        <td className="p-2 text-center">{user.subscriptionId}</td>
+                        {/* <td className="p-2 text-center">
                           {user.redeemedReferralCodeId}
-                        </td>
+                        </td> */}
                         <td className="p-2 text-center">
-                          {user.numberOfSessions}
+                          {user.user.numberOfSessions}
                         </td>
                         <td className="p-2 text-center">
                           {user.isCasesearch ? "true" : "false"}
@@ -471,7 +485,7 @@ const SubscribedUsers = () => {
                           {editableUserId === user.mongoId ? (
                             <input
                               type="text"
-                              value={user.StateLocation}
+                              value={user.user.StateLocation}
                               onChange={(e) =>
                                 handleInputChange(
                                   user.mongoId,
@@ -485,12 +499,12 @@ const SubscribedUsers = () => {
                             user.StateLocation
                           )}
                         </td>
-                        <td className="p-2 text-center">
+                        {/* <td className="p-2 text-center">
                           {user.totalTokenUsed}
                         </td>
                         <td className="p-2 text-center">
                           {user.totalGptTokens}
-                        </td>
+                        </td> */}
                         <td className="p-2 text-center">
                           <button
                             onClick={() => {
@@ -574,9 +588,11 @@ const SubscribedUsers = () => {
               label="planCode"
               onChange={handleplanCodeValueChange}
             >
-              <MenuItem value={"PRO_U_4"}>PRO_U_4</MenuItem>
+              <MenuItem value={"Pro_M"}>Pro_M</MenuItem>
+              <MenuItem value={"Pro_D"}>Pro_D</MenuItem>
+              <MenuItem value={"Pro_W"}>Pro_W</MenuItem>
             </Select>
-            <InputLabel id="demo-simple-select-label">
+            {/* <InputLabel id="demo-simple-select-label">
               Search Case Tokens
             </InputLabel>
             <Slider
@@ -585,15 +601,19 @@ const SubscribedUsers = () => {
               onChange={handleTokenValueChange}
               aria-label="Small"
               valueLabelDisplay="auto"
-            />
-            <InputLabel id="demo-simple-select-label">Gpt Tokens</InputLabel>
+            /> */}
+            {/* <InputLabel id="demo-simple-select-label">Gpt Tokens</InputLabel>
             <Slider
               size="small"
               value={gptTokenValue ? gptTokenValue : 0}
               onChange={handlegptValueChange}
               aria-label="Small"
               valueLabelDisplay="auto"
-            />
+            /> */}
+
+            <button onClick={handleReset} className="w-full bg-teal-700 px-4 py-2 rounded-md text-white">
+              RESET
+            </button>
           </div>
         </Box>
       </Modal>
