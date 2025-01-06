@@ -362,6 +362,8 @@ const Users = () => {
                   <th className="p-2">State</th>
                   <th className="p-2">Daily Engagement Time</th>
                   <th className="p-2">Monthly Engagement Time</th>
+                  <th className="p-2">ADIRA Daily Engagement Time</th>
+                  <th className="p-2">Warroom Daily Engagement Time</th>
                   <th className="p-2">Total Engagement Time</th>
                   <th className="p-2">Created At</th>
                   <th className="p-2">Updated At</th>
@@ -473,6 +475,12 @@ const Users = () => {
                       </td>
                       <td className="p-2 text-center">
                         {user.engagementTime.monthly}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.adiraEngagement.daily}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.warroomEngagement.daily}
                       </td>
                       <td className="p-2 text-center">
                         {user.engagementTime.total}
