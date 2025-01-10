@@ -366,6 +366,7 @@ const Users = () => {
                   <th className="p-2">Warroom Daily Engagement Time</th>
                   <th className="p-2">Total Engagement Time</th>
                   <th className="p-2">Adira Last Page</th>
+                  <th className="p-2">Main Website Last Page </th>
                   <th className="p-2">Warroom Last Page</th>
                   <th className="p-2">Created At</th>
                   <th className="p-2">Updated At</th>
@@ -489,6 +490,9 @@ const Users = () => {
                       </td>
                       <td className="p-2 text-center">
                         {user.adiraLastPage}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.mainWebsite}
                       </td>
                       <td className="p-2 text-center">
                         {dayjs(user.createdAt).format("YYYY-MM-DD")}
