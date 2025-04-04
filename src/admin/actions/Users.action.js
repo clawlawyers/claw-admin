@@ -11,7 +11,7 @@ export const getAllUsers = async () => {
 };
 export const getSubscribedUsers = async () => {
   try {
-    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/subscribed-user`);
+    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/subscribed-users`);
     return res.data;
   } catch (error) {
     throw new Error(error.message);

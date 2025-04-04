@@ -77,10 +77,43 @@ const SubscribedUsers = () => {
   const fetchUserData = useCallback(async () => {
     try {
       const res = await getSubscribedUsers();
-      setUserData(res);
-      console.log(res);
+      console.log('API Response:', res); // Debug log
+      if (res.success && res.data.users) {
+        // Transform the data to match the table structure
+        const transformedData = res.data.users.map(user => {
+          // Get the most recent active plan
+          const activePlan = user.plans.find(plan => plan.isActive) || user.plans[0];
+          
+          return {
+            mongoId: user.userId,
+            user: {
+              phoneNumber: user.phoneNumber,
+            },
+            planName: activePlan.planName,
+            Paidprice: activePlan.paidPrice || 0,
+            createdAt: new Date(activePlan.startDate).toLocaleDateString(),
+            updatedAt: activePlan.expiryDate ? new Date(activePlan.expiryDate).toLocaleDateString() : 'No Expiry',
+            subscriptionId: user.userId,
+            isCasesearch: activePlan.type === "Adira",
+            usage: activePlan.type === "Adira" ? 
+              {
+                legalGpt: 0,
+                adira: activePlan.documentsUsed || 0,
+                warroom: 0
+              } : 
+              {
+                legalGpt: activePlan.usage?.legalGpt?.used || 0,
+                adira: activePlan.usage?.adira?.used || 0,
+                warroom: activePlan.usage?.warroom?.used || 0,
+              }
+          };
+        });
+        console.log('Transformed Data:', transformedData); // Debug log
+        setUserData(transformedData);
+      }
     } catch (error) {
-      console.error(error.message);
+      console.error('Error fetching data:', error);
+      toast.error("Failed to fetch user data");
     }
   }, []);
 
@@ -329,215 +362,77 @@ const SubscribedUsers = () => {
                   <th className="p-2">Phone Number</th>
                   <th className="p-2">Plan Name</th>
                   <th className="p-2">Price Paid</th>
-                  {/* <th className="p-2">Gpt Tokens Used</th>
-                  <th className="p-2">Case Search Tokens Used</th> */}
-                  <th className="p-2">Created At</th>
-                  <th className="p-2">Updated At</th>
-                  <th className="p-2">Subscritpion Id</th>
-                  <th className="p-2">Total Sessions</th>
-                  
-
-                  {/* <th className="p-2">redeemedReferralCodeId</th>
-                  <th className="p-2">redeemedReferralCodeId</th> */}
-                  <th className="p-2">is case search</th>
-                  <th className="p-2">location</th>
-                  {/* <th className="p-2">total token used</th>
-                  <th className="p-2">total gpt tokens</th> */}
-                  <th className="p-2">edit</th>
-                  <th className="p-2">delete</th>
+                  <th className="p-2">Start Date</th>
+                  <th className="p-2">Expiry Date</th>
+                  <th className="p-2">User ID</th>
+                  <th className="p-2">Legal GPT Used</th>
+                  <th className="p-2">Adira Used</th>
+                  <th className="p-2">Warroom Used</th>
+                  <th className="p-2">Plan Type</th>
+                  <th className="p-2">Edit</th>
+                  <th className="p-2">Delete</th>
                 </tr>
               </thead>
               <tbody>
                 {userData
                   .filter((val) => {
                     if (searchTerm === "") {
-                      return val;
+                      return true;
                     } else if (
-                      val.phoneNumber.includes(searchTerm) ||
-                      val.planName
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
+                      val.user.phoneNumber.includes(searchTerm) ||
+                      val.planName.toLowerCase().includes(searchTerm.toLowerCase())
                     ) {
-                      return val;
+                      return true;
                     }
-                    return null;
+                    return false;
                   })
-                  .map((user) => {
-                    console.log(user.tokenUsed);
-                    if (
-                      tokenValue != null &&
-                      tokenValue < parseInt(user.tokenUsed)
-                    ) {
-                      return;
-                    }
-                    if (
-                      gptTokenValue != null &&
-                      gptTokenValue < parseInt(user.gptTokenUsed)
-                    ) {
-                      return;
-                    }
-                    if (planCode != null && planCode != user.planName) {
-                      return;
-                    }
-                    return (
-                      <tr
-                        key={user.mongoId}
-                        className="border-b border-teal-600"
-                      >
-                        <td className="p-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedUserIds.includes(user.mongoId)}
-                            onChange={(e) =>
-                              handleCheckboxChange(
-                                user.mongoId,
-                                e.target.checked
-                              )
+                  .map((user) => (
+                    <tr key={user.mongoId} className="border-b border-teal-600">
+                      <td className="p-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedUserIds.includes(user.mongoId)}
+                          onChange={(e) => handleCheckboxChange(user.mongoId, e.target.checked)}
+                        />
+                      </td>
+                      <td className="p-2 text-center">{user.user.phoneNumber}</td>
+                      <td className="p-2 text-center">{user.planName}</td>
+                      <td className="p-2 text-center">{user.Paidprice}</td>
+                      <td className="p-2 text-center">{user.createdAt}</td>
+                      <td className="p-2 text-center">{user.updatedAt}</td>
+                      <td className="p-2 text-center">{user.subscriptionId}</td>
+                      <td className="p-2 text-center">{user.usage.legalGpt}</td>
+                      <td className="p-2 text-center">{user.usage.adira}</td>
+                      <td className="p-2 text-center">{user.usage.warroom}</td>
+                      <td className="p-2 text-center">
+                        {user.isCasesearch ? "Adira" : "All-in-One"}
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => {
+                            if (editableUserId === user.mongoId) {
+                              handleSave(user);
+                            } else {
+                              toggleEdit(user.mongoId);
                             }
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          {editableUserId === user.mongoId ? (
-                            <input
-                              type="text"
-                              value={user.phoneNumber}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  user.mongoId,
-                                  "phoneNumber",
-                                  e.target.value
-                                )
-                              }
-                              className="border-2 border-gray-300 p-1 rounded-md w-full"
-                            />
-                          ) : (
-                            user.user.phoneNumber
-                          )}
-                        </td>
-                        <td className="p-2 text-center">
-                          {editableUserId === user.mongoId ? (
-                            <input
-                              type="text"
-                              value={user.planName}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  user.mongoId,
-                                  "planName",
-                                  e.target.value
-                                )
-                              }
-                              className="border-2 border-gray-300 p-1 rounded-md w-full"
-                            />
-                          ) : (
-                            user.planName
-                          )}
-                        </td>
-                        <td className="p-2 text-center">{user.Paidprice}</td>
-                        {/* <td className="p-2 text-center">
-                          {editableUserId === user.mongoId ? (
-                            <input
-                              type="text"
-                              value={user.gptTokenUsed}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  user.mongoId,
-                                  "gptTokenUsed",
-                                  e.target.value
-                                )
-                              }
-                              className="border-2 border-gray-300 p-1 rounded-md w-full"
-                            />
-                          ) : (
-                            user.gptTokenUsed
-                          )}
-                        </td> */}
-                        {/* <td className="p-2 text-center">
-                          {editableUserId === user.mongoId ? (
-                            <input
-                              type="text"
-                              value={user.tokenUsed}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  user.mongoId,
-                                  "tokensUsed",
-                                  e.target.value
-                                )
-                              }
-                              className="border-2 border-gray-300 p-1 rounded-md w-full"
-                            />
-                          ) : (
-                            user.tokenUsed
-                          )}
-                        </td> */}
-                        <td className="p-2 text-center">{user.createdAt}</td>
-                        <td className="p-2 text-center">{user.updatedAt}</td>
-                        <td className="p-2 text-center">{user.subscriptionId}</td>
-                        {/* <td className="p-2 text-center">
-                          {user.redeemedReferralCodeId}
-                        </td> */}
-                        <td className="p-2 text-center">
-                          {user.user.numberOfSessions}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.isCasesearch ? "true" : "false"}
-                        </td>
-                        <td className="p-2 text-center">
-                          {editableUserId === user.mongoId ? (
-                            <input
-                              type="text"
-                              value={user.user.StateLocation}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  user.mongoId,
-                                  "StateLocation",
-                                  e.target.value
-                                )
-                              }
-                              className="border-2 border-gray-300 p-1 rounded-md w-full"
-                            />
-                          ) : (
-                            user.StateLocation
-                          )}
-                        </td>
-                        {/* <td className="p-2 text-center">
-                          {user.totalTokenUsed}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.totalGptTokens}
-                        </td> */}
-                        <td className="p-2 text-center">
-                          <button
-                            onClick={() => {
-                              if (editableUserId === user.mongoId) {
-                                handleSave(user); // Save and exit edit mode
-                              } else {
-                                toggleEdit(user.mongoId); // Enter edit mode
-                              }
-                            }}
-                            className={` rounded-md p-1 ${
-                              editableUserId === user.mongoId
-                                ? "text-teal-500"
-                                : "text-teal-500"
-                            }`}
-                          >
-                            {editableUserId === user.mongoId ? (
-                              <Save />
-                            ) : (
-                              <Edit />
-                            )}
-                          </button>
-                        </td>
-                        <td className="p-2 text-center">
-                          <button
-                            onClick={() => confirmDelete(user)}
-                            className="text-teal-500 rounded-md p-1"
-                          >
-                            <Delete />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          }}
+                          className={`rounded-md p-1 ${
+                            editableUserId === user.mongoId ? "text-teal-500" : "text-teal-500"
+                          }`}
+                        >
+                          {editableUserId === user.mongoId ? <Save /> : <Edit />}
+                        </button>
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => confirmDelete(user)}
+                          className="text-teal-500 rounded-md p-1"
+                        >
+                          <Delete />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
