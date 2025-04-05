@@ -16,20 +16,31 @@ import axios from "axios";
 
 const Users = () => {
   const [userData, setUserData] = useState([]);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0
+  });
 
-  const fetchUserData = useCallback(async () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUserData = useCallback(async (page = 1, sortKey = null, sortDirection = 'desc') => {
     try {
-      const res = await getAllUsers();
-      setUserData(res);
-      console.log(res);
+      setIsLoading(true);
+      const res = await getAllUsers(page, 30, sortKey, sortDirection);
+      setUserData(res.users);
+      setPagination(res.pagination);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+    fetchUserData(1, 'dailyEngagementTime', 'desc');
+  }, []);
 
   // Dummy user data
   const initialUserData = [
@@ -69,7 +80,11 @@ const Users = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [editableUserId, setEditableUserId] = useState(null);
 
-  const [sortValue, setSort] = useState("");
+  const [sortConfig, setSortConfig] = useState({
+    key: 'daily',
+    direction: 'desc'
+  });
+
   const [originalUserData, setOriginalUserData] = useState(null);
   const [showUsageDialog, setShowUsageDialog] = useState(false);
   const [showEntireSessionDialog, setShowEntireSessionDialog] = useState(false);
@@ -85,60 +100,31 @@ const Users = () => {
     }
   ])
 
-  const handleSortChange = (event) => {
-    setSort(event.target.value);
-    if (event.target.value == 1) {
-      const data = userData.sort((a, b) => b.totalTokenUsed - a.totalTokenUsed);
-      setUserData(data);
+  const handleSort = (key) => {
+    let direction = 'desc';
+    if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = 'asc';
     }
-    if (event.target.value == 2) {
-      const data = userData.sort((a, b) => a.totalTokenUsed - b.totalTokenUsed);
-      setUserData(data);
-    }
-    if (event.target.value == 3) {
-      const data = userData.sort(
-        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-      );
+    setSortConfig({ key, direction });
 
-      setUserData(data);
-    }
-    if (event.target.value == 4) {
-      const data = userData.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
+    // Map frontend keys to backend keys
+    const backendKeyMap = {
+      'daily': 'dailyEngagementTime',
+      'monthly': 'monthlyEngagementTime',
+      'adiraDaily': 'adiraDailyEngagementTime',
+      'warroomDaily': 'warroomDailyEngagementTime',
+      'total': 'totalEngagementTime',
+      'createdAt': 'createdAt',
+      'updatedAt': 'updatedAt',
+      'adiraLastPage': 'adiraLastPage',
+      'mainWebsite': 'mainWebsite',
+      'warrromLastPage': 'warroomLastPage'
+    };
 
-      setUserData(data);
-    }
-
-    if (event.target.value == 5) {
-      const data = userData.sort(
-        (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt)
-      );
-
-      setUserData(data);
-    }
-    if (event.target.value == 6) {
-      const data = userData.sort(
-        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-      );
-
-      setUserData(data);
-    }
-    if (event.target.value == 7) {
-      const data = userData.sort(
-        (a, b) => b.engagementTime.total - a.engagementTime.total
-      );
-
-      setUserData(data);
-    }
-    if (event.target.value == 8) {
-      const data = userData.sort(
-        (a, b) => a.engagementTime.total - b.engagementTime.total
-      );
-
-      setUserData(data);
-    }
+    const backendKey = backendKeyMap[key] || key;
+    fetchUserData(pagination.page, backendKey, direction);
   };
+
   const handleDelete = async (userId) => {
     try {
       setUserData((prevUserData) =>
@@ -194,7 +180,7 @@ const Users = () => {
 
   const handleDeleteSelected = () => {
     setUserData((prevUserData) =>
-      prevUserData.filter((user) => !selectedUserIds.includes(user.userId))
+      prevUserData.filter((user) => !selectedUserIds.includes(user.mongoId))
     );
     setSelectedUserIds([]); // Clear selected user IDs after deletion
   };
@@ -265,6 +251,12 @@ const Users = () => {
     setShowUsageDialog(false)
   }
 
+  // Update the handlePageChange function to maintain sort when changing pages
+  const handlePageChange = (newPage) => {
+    if (newPage === pagination.page) return;
+    fetchUserData(newPage, sortConfig.key, sortConfig.direction);
+  };
+
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
       <div className="flex flex-col justify-center h-full w-full items-center ">
@@ -285,44 +277,47 @@ const Users = () => {
                 id="demo-simple-select"
                 className="text-white"
                 label="SORT"
-                value={sortValue}
+                value={sortConfig.key || 'daily'}
                 displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
-                placeholder="asdsa"
-                onChange={handleSortChange}
+                onChange={(e) => handleSort(e.target.value)}
                 style={{
-                  backgroundColor: "transparent", // Transparent background
-                  border: "2px solid #38b2ac", // Teal border
-                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)", // Shadow with black color
-                  borderRadius: "0.375rem", // Rounded corners (md size in Tailwind)
-                  color: "white", // White text
-                  padding: "0px 0px", // Padding for better appearance
+                  backgroundColor: "transparent",
+                  border: "2px solid #38b2ac",
+                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)",
+                  borderRadius: "0.375rem",
+                  color: "white",
+                  padding: "0px 0px",
                   display: "flex",
                   alignItems: "center",
-                  gap: "12px", // Space between items (space-x-3 in Tailwind)
+                  gap: "12px",
                 }}
-                IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
+                IconComponent={() => null}
+                renderValue={(selected) => {
+                  if (!selected) {
+                    return "Sort";
+                  }
+                  const menuItem = {
+                    'daily': 'Daily Engagement Time',
+                    'monthly': 'Monthly Engagement Time',
+                    'adiraDaily': 'ADIRA Daily Engagement Time',
+                    'warroomDaily': 'Warroom Daily Engagement Time',
+                    'total': 'Total Engagement Time',
+                    'createdAt': 'Created At',
+                    'updatedAt': 'Updated At'
+                  }[selected];
+                  return menuItem || "Sort";
+                }}
               >
-                 <MenuItem value="" disabled>Sort</MenuItem>
-                <MenuItem value={2}> Total token used Low-High</MenuItem>
-                <MenuItem value={1}>Total token used High-Low</MenuItem>
-                <MenuItem value={3}>Date created Oldest</MenuItem>
-                <MenuItem value={4}>Date created Latest</MenuItem>
-                <MenuItem value={5}>Date updtaed Oldest</MenuItem>
-                <MenuItem value={6}>Date updtaed Latest</MenuItem>
-                <MenuItem value={8}>engament Low-High</MenuItem>
-                <MenuItem value={7}>engament High-Low</MenuItem>
+                <MenuItem value="" disabled>Sort</MenuItem>
+                <MenuItem value="daily">Daily Engagement Time</MenuItem>
+                <MenuItem value="monthly">Monthly Engagement Time</MenuItem>
+                <MenuItem value="adiraDaily">ADIRA Daily Engagement Time</MenuItem>
+                <MenuItem value="warroomDaily">Warroom Daily Engagement Time</MenuItem>
+                <MenuItem value="total">Total Engagement Time</MenuItem>
+                <MenuItem value="createdAt">Created At</MenuItem>
+                <MenuItem value="updatedAt">Updated At</MenuItem>
               </Select>
-{/* 
-              <button
-                onClick={handleFilter}
-                className="bg-transparent border-2 border-teal-500 shadow-lg space-x-3 p-2 px-2 rounded-md shadow-black text-white flex items-center"
-              >
-                <div>
-                  <FilterAltIcon />
-                </div>
-                <div className="font-semibold">Filter</div>
-              </button> */}
 
               <button
                 onClick={handleDeleteSelected}
@@ -355,189 +350,255 @@ const Users = () => {
               <thead>
                 <tr className="bg-teal-500">
                   <th className="p-2">Select</th>
+                  <th className="p-2">Name</th>
                   <th className="p-2">Phone No</th>
-                  {/* <th className="p-2">Plans</th>
-                  <th className="p-2">Token Used</th>
-                  <th className="p-2">Total Sessions</th> */}
                   <th className="p-2">State</th>
-                  <th className="p-2">Daily Engagement Time</th>
-                  <th className="p-2">Monthly Engagement Time</th>
-                  <th className="p-2">ADIRA Daily Engagement Time</th>
-                  <th className="p-2">Warroom Daily Engagement Time</th>
-                  <th className="p-2">Total Engagement Time</th>
-                  <th className="p-2">Adira Last Page</th>
-                  <th className="p-2">Main Website Last Page </th>
-                  <th className="p-2">Warroom Last Page</th>
-                  <th className="p-2">Created At</th>
-                  <th className="p-2">Updated At</th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('daily')}
+                  >
+                    Daily Engagement Time {sortConfig.key === 'daily' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('monthly')}
+                  >
+                    Monthly Engagement Time {sortConfig.key === 'monthly' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('adiraDaily')}
+                  >
+                    ADIRA Daily Engagement Time {sortConfig.key === 'adiraDaily' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('warroomDaily')}
+                  >
+                    Warroom Daily Engagement Time {sortConfig.key === 'warroomDaily' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('total')}
+                  >
+                    Total Engagement Time {sortConfig.key === 'total' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('adiraLastPage')}
+                  >
+                    Adira Last Page {sortConfig.key === 'adiraLastPage' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('mainWebsite')}
+                  >
+                    Main Website Last Page {sortConfig.key === 'mainWebsite' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('warrromLastPage')}
+                  >
+                    Warroom Last Page {sortConfig.key === 'warrromLastPage' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('createdAt')}
+                  >
+                    Created At {sortConfig.key === 'createdAt' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
+                  <th 
+                    className={`p-2 ${!isLoading ? 'cursor-pointer hover:bg-teal-600' : 'cursor-not-allowed'}`}
+                    onClick={() => !isLoading && handleSort('updatedAt')}
+                  >
+                    Updated At {sortConfig.key === 'updatedAt' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                  </th>
                   <th className="p-2">Edit</th>
                   <th className="p-2">Delete</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
               <tbody>
-                {userData
-                  .filter((val) => {
-                    if (searchTerm === "") {
-                      return val;
-                    } else if (
-                      val.phoneNumber.includes(searchTerm) ||
-                      val.StateLocation.toLowerCase().includes(
-                        searchTerm.toLowerCase()
-                      )
-                    ) {
-                      return val;
-                    }
-                    return null;
-                  })
-                  .map((user) => (
-                    <tr key={user.mongoId} className="border-b border-teal-600">
-                      <td className="p-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedUserIds.includes(user.mongoId)}
-                          onChange={(e) =>
-                            handleCheckboxChange(user.mongoId, e.target.checked)
-                          }
-                        />
-                      </td>
-                      <td className="p-2">
-                        {editableUserId === user.mongoId ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="17" className="text-center py-10">
+                      <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+                        <span className="ml-3 text-white">Loading...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  userData
+                    .filter((val) => {
+                      if (searchTerm === "") {
+                        return val;
+                      } else if (
+                        val.phoneNumber.includes(searchTerm) ||
+                        val.StateLocation?.toLowerCase().includes(
+                          searchTerm.toLowerCase()
+                        ) ||
+                        `${val.firstName} ${val.lastName}`.toLowerCase().includes(
+                          searchTerm.toLowerCase()
+                        )
+                      ) {
+                        return val;
+                      }
+                      return null;
+                    })
+                    .map((user) => (
+                      <tr key={user.mongoId} className="border-b border-teal-600">
+                        <td className="p-2 text-center">
                           <input
-                            type="text"
-                            value={user.phoneNumber}
+                            type="checkbox"
+                            checked={selectedUserIds.includes(user.mongoId)}
                             onChange={(e) =>
-                              handleInputChange(
-                                user.mongoId,
-                                "phoneNumber",
-                                e.target.value
-                              )
+                              handleCheckboxChange(user.mongoId, e.target.checked)
                             }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
                           />
-                        ) : (
-                          user.phoneNumber
-                        )}
-                      </td>
-                      {/* <td className="p-2">{user.planNames.length}</td> */}
-                      {/* <td className="p-2 text-center">
-                        {editableUserId === user.mongoId ? (
-                          <input
-                            type="text"
-                            value={user.totalTokenUsed}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user.mongoId,
-                                "totalTokenUsed",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          />
-                        ) : (
-                          user.totalTokenUsed
-                        )}
-                      </td> */}
-                      {/* <td className="p-2 text-center">
-                        {editableUserId === user.mongoId ? (
-                          <input
-                            type="text"
-                            value={user.totalSessions}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user.mongoId,
-                                "totalSessions",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          />
-                        ) : (
-                          user.numberOfSessions
-                        )}
-                      </td> */}
-                      <td className="p-2 text-center">
-                        {editableUserId === user.mongoId ? (
-                          <input
-                            value={user.StateLocation}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user.mongoId,
-                                "StateLocation",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 p-1 rounded-md w-full"
-                          ></input>
-                        ) : (
-                          user.StateLocation
-                        )}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.engagementTime.daily}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.engagementTime.monthly}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.adiraEngagement.daily}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.warroomEngagement.daily}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.engagementTime.total}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.adiraLastPage}
-                      </td>
-                      <td className="p-2 text-center">
-                        {user.mainWebsite}
-                      </td>
-                      <td className="p-2 text-center">
-                        {dayjs(user.createdAt).format("YYYY-MM-DD")}
-                      </td>
-                      <td className="p-2 text-center">
-                        {dayjs(user.updatedAt).format("YYYY-MM-DD")}
-                      </td>
-                      <td className="p-2 text-center">
-                        <button
-                          onClick={() => {
-                            if (editableUserId === user.mongoId) {
-                              handleSave(user); // Save and exit edit mode
-                            } else {
-                              toggleEdit(user.mongoId); // Enter edit mode
-                            }
-                          }}
-                          className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
-                        >
+                        </td>
+                        <td className="p-2 text-center">
+                          {`${user.firstName || ''} ${user.lastName || ''}`}
+                        </td>
+                        <td className="p-2">{user.phoneNumber}</td>
+                        <td className="p-2 text-center">
                           {editableUserId === user.mongoId ? (
-                            <Save />
+                            <input
+                              value={user.StateLocation}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  user.mongoId,
+                                  "StateLocation",
+                                  e.target.value
+                                )
+                              }
+                              className="border-2 border-gray-300 p-1 rounded-md w-full"
+                            />
                           ) : (
-                            <Edit />
+                            user.StateLocation
                           )}
-                        </button>
-                      </td>
-                      <td className="p-2 text-center">
-                        <button
-                          onClick={() => confirmDelete(user)}
-                          className="text-red-500 hover:text-red-700 focus:outline-none"
-                        >
-                          <Delete />
-                        </button>
-                      </td>
-                      <td className="p-2 text-center">
-                        <button
-                          onClick={()=>handleOpenSessionDialog(user.mongoId)}
-                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap " 
-                        >
-                          {/* <Delete /> */} Show Usage Histroy
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.engagementTime.daily}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.engagementTime.monthly}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.adiraEngagement.daily}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.warroomEngagement.daily}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.engagementTime.total}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.adiraLastPage}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.mainWebsite}
+                        </td>
+                        <td className="p-2 text-center">
+                          {user.warrromLastPage}
+                        </td>
+                        <td className="p-2 text-center">
+                          {dayjs(user.createdAt).format("YYYY-MM-DD")}
+                        </td>
+                        <td className="p-2 text-center">
+                          {dayjs(user.updatedAt).format("YYYY-MM-DD")}
+                        </td>
+                        <td className="p-2 text-center">
+                          <button
+                            onClick={() => {
+                              if (editableUserId === user.mongoId) {
+                                handleSave(user);
+                              } else {
+                                toggleEdit(user.mongoId);
+                              }
+                            }}
+                            className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
+                          >
+                            {editableUserId === user.mongoId ? (
+                              <Save />
+                            ) : (
+                              <Edit />
+                            )}
+                          </button>
+                        </td>
+                        <td className="p-2 text-center">
+                          <button
+                            onClick={() => confirmDelete(user)}
+                            className="text-red-500 hover:text-red-700 focus:outline-none"
+                          >
+                            <Delete />
+                          </button>
+                        </td>
+                        <td className="p-2 text-center">
+                          <button
+                            onClick={() => handleOpenSessionDialog(user.mongoId)}
+                            className="border border-teal-500 px-3 p-1 rounded-md text-nowrap"
+                          >
+                            Show Usage History
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                )}
               </tbody>
             </table>
+          </div>
+          {/* Add this JSX right after the table div and before the deleteDialog */}
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={pagination.page === 1 || isLoading}
+              className={`px-3 py-1 rounded-md ${
+                pagination.page === 1 || isLoading
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-teal-500 hover:bg-teal-600"
+              }`}
+            >
+              First
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1 || isLoading}
+              className={`px-3 py-1 rounded-md ${
+                pagination.page === 1 || isLoading
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-teal-500 hover:bg-teal-600"
+              }`}
+            >
+              Previous
+            </button>
+
+            <span className="text-sm text-white px-4">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+
+            <button
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages || isLoading}
+              className={`px-3 py-1 rounded-md ${
+                pagination.page === pagination.totalPages || isLoading
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-teal-500 hover:bg-teal-600"
+              }`}
+            >
+              Next
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.totalPages)}
+              disabled={pagination.page === pagination.totalPages || isLoading}
+              className={`px-3 py-1 rounded-md ${
+                pagination.page === pagination.totalPages || isLoading
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-teal-500 hover:bg-teal-600"
+              }`}
+            >
+              Last
+            </button>
           </div>
           {/* Confirm Delete Dialog */}
           {deleteDialog && (

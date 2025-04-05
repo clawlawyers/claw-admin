@@ -1,12 +1,22 @@
 import axios from "axios";
 import { NODE_API_ENDPOINT } from "../../utils/utils";
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (page = 1, limit = 30, sortKey = null, sortDirection = 'desc') => {
   try {
-    const res = await axios.get(`${NODE_API_ENDPOINT}/admin/user`);
-    return res.data;
+    const params = new URLSearchParams({
+      page: page,
+      limit: limit
+    });
+
+    if (sortKey) {
+      params.append('sortKey', sortKey);
+      params.append('sortDirection', sortDirection);
+    }
+
+    const response = await axios.get(`${NODE_API_ENDPOINT}/admin/user?${params}`);
+    return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 export const getSubscribedUsers = async () => {
