@@ -30,6 +30,7 @@ import AllAdmin from "./admin/Alladmin";
 import ProductBasedVisit from "./admin/ProductBasedVisit";
 import TrialCourtroomCoupon from "./admin/TrialCoupouns";
 import { Feedback } from "@mui/icons-material";
+import UserDashboard from './admin/UserDashboard';
 
 function App() {
   useEffect(() => {
@@ -54,6 +55,10 @@ function App() {
         {
           path: "/admin/users",
           element: <Users />,
+        },
+        {
+          path: "/admin/users/:userId",
+          element: <UserDashboard />,
         },
         {
           path: "/admin/sub-users",

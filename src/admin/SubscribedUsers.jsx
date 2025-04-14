@@ -80,12 +80,15 @@ const SubscribedUsers = () => {
       console.log('API Response:', res); // Debug log
       if (res.success && res.data.users) {
         // Transform the data to match the table structure
-        const transformedData = res.data.users.map(user => {
+        const transformedData = res.data.users.map((user, index) => {
           // Get the most recent active plan
           const activePlan = user.plans.find(plan => plan.isActive) || user.plans[0];
           
+          // Create a unique key by combining userId and index
+          const uniqueKey = `${user.userId}-${index}`;
+          
           return {
-            mongoId: user.userId,
+            mongoId: uniqueKey, // Use unique key instead of just userId
             user: {
               phoneNumber: user.phoneNumber,
             },
@@ -191,9 +194,27 @@ const SubscribedUsers = () => {
 
   const handleInputChange = (userId, field, value) => {
     setUserData((prevUserData) =>
-      prevUserData.map((user) =>
-        user.mongoId === userId ? { ...user, [field]: value } : user
-      )
+      prevUserData.map((user) => {
+        if (user.mongoId === userId) {
+          // Handle nested properties (e.g., 'user.phoneNumber')
+          if (field.includes('.')) {
+            const [parent, child] = field.split('.');
+            return {
+              ...user,
+              [parent]: {
+                ...user[parent],
+                [child]: value
+              }
+            };
+          }
+          // Handle regular properties
+          return {
+            ...user,
+            [field]: value
+          };
+        }
+        return user;
+      })
     );
   };
 
@@ -239,24 +260,38 @@ const SubscribedUsers = () => {
 
   const handleSave = async (user) => {
     // Check if data has changed
-    const dataChanged =
-      JSON.stringify(originalUserData) !== JSON.stringify(user);
+    const dataChanged = JSON.stringify(originalUserData) !== JSON.stringify(user);
 
     if (!dataChanged) {
       setEditableUserId(null); // Exit edit mode without API call
       return;
     }
-    if (originalUserData.StateLocation != user.StateLocation) {
-      const res = await axios.patch(
-        `${NODE_API_ENDPOINT}/admin/updateUserLocation`,
-        {
-          id: user.mongoId,
-          location: user.StateLocation,
-        }
-      );
-    }
 
-    toast.success("User data updated successfully");
+    try {
+      // Prepare the update data
+      const updateData = {
+        id: user.subscriptionId, // Use the original user ID
+        planName: user.planName,
+        expiryDate: user.updatedAt
+      };
+
+      // Make API call to update user data
+      const res = await axios.patch(
+        `${NODE_API_ENDPOINT}/admin/updateUserPlan`,
+        updateData
+      );
+
+      if (res.data.success) {
+        toast.success("Plan and expiry date updated successfully");
+        // Refresh the data to get the latest changes
+        fetchUserData();
+      } else {
+        toast.error("Failed to update plan and expiry date");
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error("Failed to update plan and expiry date");
+    }
 
     setEditableUserId(null); // Exit edit mode
     setOriginalUserData(null); // Clear original data
@@ -396,10 +431,41 @@ const SubscribedUsers = () => {
                         />
                       </td>
                       <td className="p-2 text-center">{user.user.phoneNumber}</td>
-                      <td className="p-2 text-center">{user.planName}</td>
+                      <td className="p-2 text-center">
+                        {editableUserId === user.mongoId ? (
+                          <select
+                            value={user.planName}
+                            onChange={(e) => handleInputChange(user.mongoId, 'planName', e.target.value)}
+                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none text-center"
+                          >
+                            <option value="Basic_D">Basic Daily</option>
+                            <option value="Basic_W">Basic Weekly</option>
+                            <option value="Basic_M">Basic Monthly</option>
+                            <option value="Pro_D">Pro Daily</option>
+                            <option value="Pro_W">Pro Weekly</option>
+                            <option value="Pro_M">Pro Monthly</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="FREE">Free</option>
+                            <option value="Campaign-99">Campaign-99</option>
+                          </select>
+                        ) : (
+                          user.planName
+                        )}
+                      </td>
                       <td className="p-2 text-center">{user.Paidprice}</td>
                       <td className="p-2 text-center">{user.createdAt}</td>
-                      <td className="p-2 text-center">{user.updatedAt}</td>
+                      <td className="p-2 text-center">
+                        {editableUserId === user.mongoId ? (
+                          <input
+                            type="date"
+                            value={user.updatedAt}
+                            onChange={(e) => handleInputChange(user.mongoId, 'updatedAt', e.target.value)}
+                            className="w-full bg-transparent border-b-2 border-teal-500 outline-none text-center"
+                          />
+                        ) : (
+                          user.updatedAt
+                        )}
+                      </td>
                       <td className="p-2 text-center">{user.subscriptionId}</td>
                       <td className="p-2 text-center">{user.usage.legalGpt}</td>
                       <td className="p-2 text-center">{user.usage.adira}</td>

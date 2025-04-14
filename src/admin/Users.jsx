@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Papa from "papaparse";
 import MenuItem from "@mui/material/MenuItem";
+import { useNavigate } from 'react-router-dom';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -24,6 +25,13 @@ const Users = () => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const convertMinutesToHours = (minutes) => {
+    if (!minutes) return '0 hours';
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours} hours${remainingMinutes > 0 ? ` ${remainingMinutes} minutes` : ''}`;
+  };
 
   const fetchUserData = useCallback(async (page = 1, sortKey = null, sortDirection = 'desc') => {
     try {
@@ -99,6 +107,8 @@ const Users = () => {
       sessiontitle:"",
     }
   ])
+
+  const navigate = useNavigate();
 
   const handleSort = (key) => {
     let direction = 'desc';
@@ -257,6 +267,10 @@ const Users = () => {
     fetchUserData(newPage, sortConfig.key, sortConfig.direction);
   };
 
+  const handleRowClick = (userId) => {
+    navigate(`/admin/users/${userId}`);
+  };
+
   return (
     <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
       <div className="flex flex-col justify-center h-full w-full items-center ">
@@ -309,7 +323,7 @@ const Users = () => {
                   return menuItem || "Sort";
                 }}
               >
-                <MenuItem value="" disabled>Sort</MenuItem>
+                 <MenuItem value="" disabled>Sort</MenuItem>
                 <MenuItem value="daily">Daily Engagement Time</MenuItem>
                 <MenuItem value="monthly">Monthly Engagement Time</MenuItem>
                 <MenuItem value="adiraDaily">ADIRA Daily Engagement Time</MenuItem>
@@ -430,120 +444,129 @@ const Users = () => {
                   </tr>
                 ) : (
                   userData
-                    .filter((val) => {
-                      if (searchTerm === "") {
-                        return val;
-                      } else if (
-                        val.phoneNumber.includes(searchTerm) ||
+                  .filter((val) => {
+                    if (searchTerm === "") {
+                      return val;
+                    } else if (
+                      val.phoneNumber.includes(searchTerm) ||
                         val.StateLocation?.toLowerCase().includes(
                           searchTerm.toLowerCase()
                         ) ||
                         `${val.firstName} ${val.lastName}`.toLowerCase().includes(
-                          searchTerm.toLowerCase()
-                        )
-                      ) {
-                        return val;
-                      }
-                      return null;
-                    })
-                    .map((user) => (
-                      <tr key={user.mongoId} className="border-b border-teal-600">
-                        <td className="p-2 text-center">
+                        searchTerm.toLowerCase()
+                      )
+                    ) {
+                      return val;
+                    }
+                    return null;
+                  })
+                  .map((user) => (
+                    <tr 
+                      key={user.mongoId} 
+                      className="border-b border-teal-600 hover:bg-black/40 cursor-pointer"
+                      onClick={() => handleRowClick(user.mongoId)}
+                    >
+                      <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedUserIds.includes(user.mongoId)}
+                          onChange={(e) => handleCheckboxChange(user.mongoId, e.target.checked)}
+                        />
+                      </td>
+                      <td className="p-2 text-center">
+                        {`${user.firstName || ''} ${user.lastName || ''}`}
+                      </td>
+                      <td className="p-2">{user.phoneNumber}</td>
+                      <td className="p-2 text-center">
+                        {editableUserId === user.mongoId ? (
                           <input
-                            type="checkbox"
-                            checked={selectedUserIds.includes(user.mongoId)}
+                            value={user.StateLocation}
                             onChange={(e) =>
-                              handleCheckboxChange(user.mongoId, e.target.checked)
+                              handleInputChange(
+                                user.mongoId,
+                                "StateLocation",
+                                e.target.value
+                              )
                             }
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          {`${user.firstName || ''} ${user.lastName || ''}`}
-                        </td>
-                        <td className="p-2">{user.phoneNumber}</td>
-                        <td className="p-2 text-center">
-                          {editableUserId === user.mongoId ? (
-                            <input
-                              value={user.StateLocation}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  user.mongoId,
-                                  "StateLocation",
-                                  e.target.value
-                                )
-                              }
-                              className="border-2 border-gray-300 p-1 rounded-md w-full"
+                            className="border-2 border-gray-300 p-1 rounded-md w-full"
                             />
-                          ) : (
-                            user.StateLocation
-                          )}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.engagementTime.daily}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.engagementTime.monthly}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.adiraEngagement.daily}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.warroomEngagement.daily}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.engagementTime.total}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.adiraLastPage}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.mainWebsite}
-                        </td>
-                        <td className="p-2 text-center">
-                          {user.warrromLastPage}
-                        </td>
-                        <td className="p-2 text-center">
-                          {dayjs(user.createdAt).format("YYYY-MM-DD")}
-                        </td>
-                        <td className="p-2 text-center">
-                          {dayjs(user.updatedAt).format("YYYY-MM-DD")}
-                        </td>
-                        <td className="p-2 text-center">
-                          <button
-                            onClick={() => {
-                              if (editableUserId === user.mongoId) {
+                        ) : (
+                          user.StateLocation
+                        )}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.engagementTime.daily}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.engagementTime.monthly}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.adiraEngagement.daily}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.warroomEngagement.daily}
+                      </td>
+                      <td className="p-2 text-center">
+                        {convertMinutesToHours(user.engagementTime.total)}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.adiraLastPage}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.mainWebsite}
+                      </td>
+                      <td className="p-2 text-center">
+                        {user.warrromLastPage}
+                      </td>
+                      <td className="p-2 text-center">
+                        {dayjs(user.createdAt).format("YYYY-MM-DD")}
+                      </td>
+                      <td className="p-2 text-center">
+                        {dayjs(user.updatedAt).format("YYYY-MM-DD")}
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (editableUserId === user.mongoId) {
                                 handleSave(user);
-                              } else {
+                            } else {
                                 toggleEdit(user.mongoId);
-                              }
+                            }
+                          }}
+                          className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
+                        >
+                          {editableUserId === user.mongoId ? (
+                            <Save />
+                          ) : (
+                            <Edit />
+                          )}
+                        </button>
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            confirmDelete(user);
+                          }}
+                          className="text-red-500 hover:text-red-700 focus:outline-none"
+                        >
+                          <Delete />
+                        </button>
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenSessionDialog(user.mongoId);
                             }}
-                            className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
-                          >
-                            {editableUserId === user.mongoId ? (
-                              <Save />
-                            ) : (
-                              <Edit />
-                            )}
-                          </button>
-                        </td>
-                        <td className="p-2 text-center">
-                          <button
-                            onClick={() => confirmDelete(user)}
-                            className="text-red-500 hover:text-red-700 focus:outline-none"
-                          >
-                            <Delete />
-                          </button>
-                        </td>
-                        <td className="p-2 text-center">
-                          <button
-                            onClick={() => handleOpenSessionDialog(user.mongoId)}
                             className="border border-teal-500 px-3 p-1 rounded-md text-nowrap"
-                          >
+                        >
                             Show Usage History
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

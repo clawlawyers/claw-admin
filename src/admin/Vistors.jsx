@@ -101,7 +101,14 @@ const Visitor = () => {
   const [originalUserData, setOriginalUserData] = useState(null);
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState(null);
-  const [endDate, setendDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 30,
+    totalPages: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
   const style = {
     position: "absolute",
@@ -121,7 +128,7 @@ const Visitor = () => {
     console.log(event.target.value); // Update state with the new date
   };
   const handleEndDateChange = (event) => {
-    setendDate(event.target.value);
+    setEndDate(event.target.value);
     console.log(event.target.value); // Update state with the new date
   };
   
@@ -163,19 +170,62 @@ const Visitor = () => {
   const handleClose = () => {
     setUserDialog(false);
   };
-  const fetchUserData = useCallback(async () => {
+  const fetchVisitorData = useCallback(async (page = 1) => {
     try {
-      const res = await getAllVisitors();
-      setUserData(res);
-      console.log(res);
+      setIsLoading(true);
+      const params = new URLSearchParams({
+        page: page,
+        limit: 30
+      });
+      
+      if (searchTerm) params.append('search', searchTerm);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (sortValue) params.append('sort', sortValue);
+
+      const res = await getAllVisitors(params.toString());
+      console.log('API Response:', res); // Keep this for debugging
+      
+      if (res && res.data && Array.isArray(res.data)) {
+        setUserData(res.data);
+        // Use pagination info from API response if available
+        if (res.pagination) {
+          setPagination(res.pagination);
+        } else {
+          // Fallback to calculating from data length
+          setPagination({
+            total: res.data.length,
+            page: page,
+            limit: 30,
+            totalPages: Math.ceil(res.data.length / 30)
+          });
+        }
+      } else {
+        setUserData([]);
+        setPagination({
+          total: 0,
+          page: 1,
+          limit: 30,
+          totalPages: 0
+        });
+      }
     } catch (error) {
-      console.error(error.message);
+      console.error('Error fetching data:', error);
+      setUserData([]);
+      setPagination({
+        total: 0,
+        page: 1,
+        limit: 30,
+        totalPages: 0
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [searchTerm, startDate, endDate, sortValue]);
 
   useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+    fetchVisitorData(1);
+  }, [fetchVisitorData]);
 
   const handleCheckboxChange = (userId, isChecked) => {
     setSelectedUserIds((prevSelectedUserIds) => {
@@ -239,15 +289,31 @@ const Visitor = () => {
     }
    
   };
-  const handleReset =()=>{
-    setStartDate(null)
-    setendDate(null)
-    
-  }
+  const handleReset = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setSearchTerm('');
+    fetchVisitorData(1);
+  };
+
+  // Add page change handler
+  const handlePageChange = (newPage) => {
+    if (newPage === pagination.page) return;
+    fetchVisitorData(newPage);
+  };
+
+  const filteredData = userData.filter((user) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      user.userId?.toLowerCase().includes(searchLower) ||
+      user.visitorId?.toLowerCase().includes(searchLower) ||
+      user.timestamp?.toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
-    <section className="h-screen w-full flex flex-row justify-center items-center gap-5 p-5">
-      <div className="flex flex-col justify-center h-full w-full items-center ">
+    <section className="h-screen w-full flex flex-col justify-between items-center gap-5 p-5">
+      <div className="flex flex-col justify-start h-full w-full items-center">
         <div className="flex relative flex-col rounded-lg h-full bg-black/30 w-full gap-3 p-3 shadow-md">
           <div className="flex flex-col lg:flex-row w-full justify-between gap-2 items-start">
             <div className="flex flex-row items-center gap-3 mb-4 lg:mb-0">
@@ -329,246 +395,92 @@ const Visitor = () => {
             <table className="w-full table-auto text-sm">
               <thead>
                 <tr className=" text-white bg-teal-500">
-                  <th className="p-2 text-left">timestamp</th>
-                  <th className="p-2 text-left">userid</th>
-                  <th className="p-2 text-left">visitorid</th>
-                  {/* <th className="p-2 text-left">Created At</th>
-                  <th className="p-2 text-left">Updated At</th>
-                  <th className="p-2 px-4 text-left">Actions</th> */}
+                  <th className="p-2 text-left">Timestamp</th>
+                  <th className="p-2 text-left">Path</th>
+                  <th className="p-2 text-left">Visit Duration</th>
+                  <th className="p-2 text-left">User ID</th>
+                  <th className="p-2 text-left">Visitor ID</th>
                 </tr>
               </thead>
               <tbody>
-                {userData
-                  .map((user,i) => {
-                    // if(i>10){
-                    //   return
-                    // }
-                    if (
-                      startDate != null &&
-                      new Date(startDate) > new Date(user.timestamp)
-                    ) {
-                      console.log(startDate);
-                      console.log(user.date);
-                      return null;
-                    }
-                    if (
-                      endDate != null &&
-                      new Date(endDate) < new Date(user.timestamp)
-                    ) {
-                      return;
-                    }
-                    return(
-
-                      
-                      <tr key={user._id} className="  border-b ">
-                      <td className="p-2 text-left">{user.timestamp}</td>
-                      <td className="p-2 text-left">{user.userId}</td>
-                      <td className="p-2 text-left">{user.visitorId}</td>
-                      {/* <td className="p-2 text-left">
-                        <input
-                          type="checkbox"
-                          className="text-center"
-                          checked={selectedUserIds.includes(user._id)}
-                          onChange={(e) =>
-                            handleCheckboxChange(user._id, e.target.checked)
-                          }
-                        />
-                      </td> */}
-                      {/* <td className="p-2 text-left">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.phoneNumber}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "phoneNumber",
-                                e.target.value
-                                )
-                            }
-                            className="border-2 border-gray-300 rounded-lg p-1"
-                          />
-                        ) : (
-                          user.phoneNumber
-                        )}
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="5" className="text-center py-10">
+                      <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+                        <span className="ml-3 text-white">Loading...</span>
+                      </div>
                       </td>
-                      <td className="p-2 text-left">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.plan}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "plan",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 rounded-lg p-1"
-                          />
-                        ) : (
-                          user.plan
-                        )}
-                      </td>
-                      <td className="p-2 text-left">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.totalTokensUsed}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "totalTokensUsed",
-                                e.target.value
-                                )
-                            }
-                            className="border-2 border-gray-300 rounded-lg p-1"
-                          />
-                        ) : (
-                          user.totalTokensUsed
-                        )}
-                      </td>
-                      <td className="p-2 text-left">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.createdAt}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "createdAt",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 rounded-lg p-1"
-                          />
-                        ) : (
-                          user.createdAt
-                        )}
-                      </td>
-                      <td className="p-2 text-left">
-                        {editableUserId === user._id ? (
-                          <input
-                            type="text"
-                            value={user.updatedAt}
-                            onChange={(e) =>
-                              handleInputChange(
-                                user._id,
-                                "updatedAt",
-                                e.target.value
-                              )
-                            }
-                            className="border-2 border-gray-300 rounded-lg p-1"
-                          />
-                        ) : (
-                          user.updatedAt
-                        )}
-                      </td>
-                      <td className="p-2 text-left">
-                        <button
-                          onClick={() => toggleEdit(user._id)}
-                          className="mr-2  text-teal-600 p-1 px-2 rounded-md"
-                        >
-                          {editableUserId === user._id ? <Save /> : <Edit />}
-                        </button>
-                        {editableUserId === user._id && (
-                          <button
-                            onClick={() => handleSave(user)}
-                            className="mr-2 text-teal-600 p-1 px-2 rounded-md"
-                          >
-                            Save
-                          </button>
-                        )}
-                        <button
-                          onClick={() => confirmDelete(user)}
-                          className=" text-teal-600 p-1 px-2 rounded-md"
-                        >
-                          <Delete />
-                        </button>
-                      </td> */}
+                  </tr>
+                ) : (
+                  filteredData.map((visit) => (
+                    <tr key={visit._id} className="border-b">
+                      <td className="p-2 text-left">{new Date(visit.timestamp).toLocaleString()}</td>
+                      <td className="p-2 text-left">{visit.path}</td>
+                      <td className="p-2 text-left">{Math.floor(visit.visitDuration / 60)} minutes</td>
+                      <td className="p-2 text-left">{visit.userId || 'Anonymous'}</td>
+                      <td className="p-2 text-left">{visit.visitorId}</td>
                     </tr>
-)
-})}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      {userToDelete && deleteDialog && (
-        <div className="absolute inset-0 flex items-center backdrop-blur-sm justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-[#D9D9D9] text-teal-600 font-bold p-5 rounded-lg text-center">
-            <p>
-              Are you sure you want to delete ? <br />
-              {userToDelete.phoneNumber}?
-            </p>
-            <div className="flex justify-center gap-3 mt-3">
+      
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center gap-2 mt-4 w-full">
               <button
-                onClick={() => handleDelete(userToDelete._id)}
-                className="border border-teal-600 text-black px-3 py-1 rounded-lg"
-              >
-                Cancel
+          onClick={() => handlePageChange(1)}
+          disabled={pagination.page === 1 || isLoading}
+          className={`px-3 py-1 rounded-md ${
+            pagination.page === 1 || isLoading
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-teal-500 hover:bg-teal-600 text-white"
+          }`}
+        >
+          First
               </button>
               <button
-                onClick={cancelDelete}
-                className="bg-teal-600 text-white px-5 py-1 rounded-lg"
-              >
-                Yes
+          onClick={() => handlePageChange(pagination.page - 1)}
+          disabled={pagination.page === 1 || isLoading}
+          className={`px-3 py-1 rounded-md ${
+            pagination.page === 1 || isLoading
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-teal-500 hover:bg-teal-600 text-white"
+          }`}
+        >
+          Previous
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <Modal
-        open={open}
-        onClose={handleCloseFilter}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <div className="flex flex-col">
-           
-            <label
-              htmlFor="StartDate"
-              className="text-left self-start font-semibold"
-            >
-              Start Date
-            </label>
-            <input
-              id="StartDate"
-              type="date"
-              value={startDate || ""}
-              onChange={handleDateChange}
-              className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
-            />
-            <label
-              htmlFor="endDate"
-              className="text-left self-start font-semibold"
-            >
-              End Date
-            </label>
-            <input
-              id="endDate"
-              type="date"
-              value={endDate || ""}
-              onChange={handleEndDateChange}
-              className="mb-4 w-full rounded-md py-2 px-1 text-neutral-800 outline-none"
-            />
-              <button onClick={handleReset} className="w-full bg-teal-700 px-4 py-2 rounded-md text-white">
-              RESET
+
+        <span className="text-sm text-white px-4">
+          Page {pagination.page} of {pagination.totalPages}
+        </span>
+
+        <button
+          onClick={() => handlePageChange(pagination.page + 1)}
+          disabled={pagination.page === pagination.totalPages || isLoading}
+          className={`px-3 py-1 rounded-md ${
+            pagination.page === pagination.totalPages || isLoading
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-teal-500 hover:bg-teal-600 text-white"
+          }`}
+        >
+          Next
+        </button>
+        <button
+          onClick={() => handlePageChange(pagination.totalPages)}
+          disabled={pagination.page === pagination.totalPages || isLoading}
+          className={`px-3 py-1 rounded-md ${
+            pagination.page === pagination.totalPages || isLoading
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-teal-500 hover:bg-teal-600 text-white"
+          }`}
+        >
+          Last
             </button>
-            {/* <InputLabel id="demo-simple-select-label">
-              Search Case Tokens
-            </InputLabel>
-            <Slider
-              size="small"
-              value={tokenValue ? tokenValue : 0}
-              onChange={handleTokenValueChange}
-              aria-label="Small"
-              valueLabelDisplay="auto"
-            /> */}
           </div>
-        </Box>
-      </Modal>
     </section>
   );
 };
