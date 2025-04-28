@@ -51,6 +51,8 @@ export const navbarMenus = [
   { id: 14, name: "All Admins", link: "/admin/all-admins" },
   { id: 15, name: "Trial Coupuns", link: "/admin/trail-coupouns" },
   { id: 16, name: "Response User feedback", link: "/admin/user-feedback" },
+  { id: 17, name: "Page Analytics", link: "/admin/page-track" },
+  { id: 18, name: "Visit Heatmap", link: "/admin/visit-heatmap" },
 ];
 
 export default navbarMenus;

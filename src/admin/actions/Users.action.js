@@ -1,19 +1,26 @@
 import axios from "axios";
 import { NODE_API_ENDPOINT } from "../../utils/utils";
 
-export const getAllUsers = async (page = 1, limit = 30, sortKey = null, sortDirection = 'desc') => {
+export const getAllUsers = async (
+  page = 1,
+  limit = 30,
+  sortKey = null,
+  sortDirection = "desc"
+) => {
   try {
     const params = new URLSearchParams({
       page: page,
-      limit: limit
+      limit: limit,
     });
 
     if (sortKey) {
-      params.append('sortKey', sortKey);
-      params.append('sortDirection', sortDirection);
+      params.append("sortKey", sortKey);
+      params.append("sortDirection", sortDirection);
     }
 
-    const response = await axios.get(`${NODE_API_ENDPOINT}/admin/user?${params}`);
+    const response = await axios.get(
+      `${NODE_API_ENDPOINT}/admin/user?${params}`
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -45,10 +52,10 @@ export const getVistors = async (param) => {
     throw new Error(error.message);
   }
 };
-export const getAllVisitors = async (params = '') => {
+export const getAllVisitors = async (params = "") => {
   try {
     const res = await axios.get(
-      `http://localhost:8000/api/v1/admin/allVisitors?${params}`
+      `${NODE_API_ENDPOINT}/admin/allVisitors?${params}`
     );
     return res.data;
   } catch (error) {

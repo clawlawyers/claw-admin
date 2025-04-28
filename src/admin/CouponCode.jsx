@@ -181,11 +181,12 @@ const CouponCode = () => {
 
   return (
     <section
-      className={`h-screen w-full flex flex-row justify-center items-center gap-5 p-5 ${
+      className={`h-screen w-full flex flex-col justify-start items-center gap-5 p-5 ${
         openExport || openAdd ? "blur-lg" : ""
       }`}
     >
-      <div className="flex flex-col justify-center h-full w-full items-center">
+      <div className="flex flex-col justify-start h-full w-full items-center">
+        <CouponStats />
         <div className="flex relative flex-col rounded-lg h-full bg-black/30 w-full gap-3 p-3 shadow-md">
           <div className="flex flex-col lg:flex-row w-full justify-between gap-2 items-start">
             <div className="flex flex-row items-center gap-3 mb-4 lg:mb-0">
@@ -226,7 +227,9 @@ const CouponCode = () => {
                 }}
                 IconComponent={() => null} // Optional: Removes default arrow icon (if you don't want it)
               >
-                 <MenuItem value="" disabled>Sort</MenuItem>
+                <MenuItem value="" disabled>
+                  Sort
+                </MenuItem>
                 <MenuItem value={2}> Discounts Low-High</MenuItem>
                 <MenuItem value={1}>Discounts High-Low</MenuItem>
                 <MenuItem value={3}>Date Expire Oldest</MenuItem>
@@ -491,6 +494,10 @@ const initialCouponData = [
     discount: "10%",
     expirationDate: "2023-12-31",
     active: true,
+    timesUsed: 0,
+    totalSavingsGenerated: "₹0",
+    uniqueUsers: 0,
+    lastUsed: "-",
   },
   {
     _id: "2",
@@ -498,6 +505,10 @@ const initialCouponData = [
     discount: "20%",
     expirationDate: "2023-11-30",
     active: true,
+    timesUsed: 0,
+    totalSavingsGenerated: "₹0",
+    uniqueUsers: 0,
+    lastUsed: "-",
   },
   {
     _id: "3",
@@ -505,6 +516,10 @@ const initialCouponData = [
     discount: "Free Shipping",
     expirationDate: "2024-01-15",
     active: false,
+    timesUsed: 0,
+    totalSavingsGenerated: "₹0",
+    uniqueUsers: 0,
+    lastUsed: "-",
   },
   {
     _id: "4",
@@ -512,6 +527,10 @@ const initialCouponData = [
     discount: "15%",
     expirationDate: "2023-09-30",
     active: true,
+    timesUsed: 0,
+    totalSavingsGenerated: "₹0",
+    uniqueUsers: 0,
+    lastUsed: "-",
   },
   {
     _id: "5",
@@ -519,7 +538,38 @@ const initialCouponData = [
     discount: "5%",
     expirationDate: "2023-10-15",
     active: true,
+    timesUsed: 0,
+    totalSavingsGenerated: "₹0",
+    uniqueUsers: 0,
+    lastUsed: "-",
   },
 ];
+
+const CouponStats = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="bg-white/10 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold">Total Active Coupons</h3>
+        <p className="text-2xl font-bold">4</p>
+        <p className="text-sm text-gray-400">Out of 5 total coupons</p>
+      </div>
+      <div className="bg-white/10 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold">Total Redemptions</h3>
+        <p className="text-2xl font-bold">0</p>
+        <p className="text-sm text-gray-400">Across all coupons</p>
+      </div>
+      <div className="bg-white/10 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold">Total Savings Generated</h3>
+        <p className="text-2xl font-bold">₹0</p>
+        <p className="text-sm text-gray-400">For all customers</p>
+      </div>
+      <div className="bg-white/10 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold">Avg. Discount</h3>
+        <p className="text-2xl font-bold">12.5%</p>
+        <p className="text-sm text-gray-400">Across active coupons</p>
+      </div>
+    </div>
+  );
+};
 
 export default CouponCode;

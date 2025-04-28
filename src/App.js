@@ -1,6 +1,4 @@
-import logo from "./logo.svg";
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
-
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import AdminLayout from "./admin/AdminLayout";
 import CourtRoomUsers from "./admin/Admin";
@@ -15,7 +13,6 @@ import Users from "./admin/Users";
 import SubscribedUsers from "./admin/SubscribedUsers";
 import Referral from "./admin/Referral";
 import UsersFeedback from "./admin/UserFeedback";
-
 import Visitors from "./admin/Vistors";
 import CouponCode from "./admin/CouponCode";
 import UserVisit from "./admin/UserVisit";
@@ -29,12 +26,13 @@ import SalesmanDetails from "./admin/SalesmanDetails";
 import AllAdmin from "./admin/Alladmin";
 import ProductBasedVisit from "./admin/ProductBasedVisit";
 import TrialCourtroomCoupon from "./admin/TrialCoupouns";
-import { Feedback } from "@mui/icons-material";
-import UserDashboard from './admin/UserDashboard';
+import PageTrack from "./admin/PageTrack";
+import VisitHeatmap from "./admin/components/VisitHeatmap";
+import UserDashboard from "./admin/UserDashboard";
+// import UserDetail from "./admin/UserDetail";  // Removed
 
 function App() {
   useEffect(() => {
-    store.dispatch(retrieveUserslist());
     store.dispatch(retrieveUserslist());
     store.dispatch(retrieveAuth());
   }, []);
@@ -63,17 +61,14 @@ function App() {
         {
           path: "/admin/sub-users",
           element: <SubscribedUsers />,
-       
         },
         {
           path: "/admin/court-room",
           element: <CourtRoomUsers />,
-          
         },
         {
           path: "/admin/allowed-booking",
           element: <AllowedBooking />,
-        
         },
         {
           path: "/admin/allowed-login",
@@ -82,7 +77,6 @@ function App() {
         {
           path: "/admin/custom-courtroom",
           element: <CustomCourtrrom />,
-          
         },
         {
           path: "/admin/referral",
@@ -103,18 +97,14 @@ function App() {
         {
           path: "/admin/add-ambasador",
           element: <AddAmbasaddor />,
-          
         },
         {
           path: "/admin/salesman",
           element: <Salesman />,
         },
-        
         {
           path: "/admin/salesman/:id",
-          
           element: <SalesmanDetails />,
-          
         },
         {
           path: "/admin/all-admins",
@@ -126,17 +116,25 @@ function App() {
         },
         {
           path: "/admin/productbasedvisit",
-          path: "/admin/productbasedvisit",
-          element: <ProductBasedVisit />,
           element: <ProductBasedVisit />,
         },
         {
           path: "/admin/user-feedback",
           element: <UsersFeedback />,
         },
+        // New routes for page tracking and heatmap
+        {
+          path: "/admin/page-track",
+          element: <PageTrack />,
+        },
+        {
+          path: "/admin/visit-heatmap",
+          element: <VisitHeatmap />,
+        },
       ],
     },
   ]);
+
   return (
     <div className="App">
       <RouterProvider router={router} />
